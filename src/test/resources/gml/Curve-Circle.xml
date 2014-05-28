@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Every triangle has a circumscribed circle -->
+<gml:Curve gml:id="Curve-Arc" srsName="urn:ogc:def:crs:EPSG::4326"
+	xmlns:gml="http://www.opengis.net/gml/3.2">
+	<gml:segments>
+		<gml:Circle interpolation="circularArc3Points">
+			<gml:pos>49.194442 -122.929795</gml:pos>
+			<gml:pos>49.040829 -123.086952</gml:pos>
+			<gml:pos>49.361246 -123.183889</gml:pos>
+		</gml:Circle>
+	</gml:segments>
+</gml:Curve>

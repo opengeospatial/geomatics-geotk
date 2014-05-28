@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gml:Surface gml:id="S-01" srsName="urn:ogc:def:crs:EPSG::32610"
+  xmlns:gml="http://www.opengis.net/gml/3.2">
+  <gml:patches>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember>
+            <gml:Curve gml:id="C-01">
+              <gml:segments>
+                <gml:LineStringSegment>
+                  <gml:pos>486602 5449119</gml:pos>
+                  <gml:pos>516675 5452049</gml:pos>
+                  <gml:pos>503729 5463799</gml:pos>
+                  <gml:pos>480775 5464220</gml:pos>
+                  <gml:pos>486602 5449119</gml:pos>
+                </gml:LineStringSegment>
+              </gml:segments>
+            </gml:Curve>
+          </gml:curveMember>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+    <gml:PolygonPatch>
+      <gml:exterior>
+        <gml:Ring>
+          <gml:curveMember>
+            <gml:Curve gml:id="C-02">
+              <gml:segments>
+                <gml:LineStringSegment>
+                  <gml:posList>516675 5452049 532639 5473874 503729 5463799 516675 5452049</gml:posList>
+                </gml:LineStringSegment>
+              </gml:segments>
+            </gml:Curve>
+          </gml:curveMember>
+        </gml:Ring>
+      </gml:exterior>
+    </gml:PolygonPatch>
+  </gml:patches>
+</gml:Surface>

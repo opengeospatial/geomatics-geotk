@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gml:MultiGeometry gml:id="MultiGeometry-1" srsName="urn:ogc:def:crs:EPSG::4326"
+  xmlns:gml="http://www.opengis.net/gml/3.2">
+  <gml:geometryMember>
+    <gml:Polygon gml:id="Polygon-1" srsName="urn:ogc:def:crs:EPSG::4326">
+      <gml:exterior>
+        <gml:LinearRing>
+          <gml:posList>49.0 -123.5 49.0 -122.5 50.0 -122.5 50.0 -123.5 49.0 -123.5</gml:posList>
+        </gml:LinearRing>
+      </gml:exterior>
+    </gml:Polygon>
+  </gml:geometryMember>
+  <gml:geometryMember>
+    <gml:Point gml:id="Point-1" srsName="urn:ogc:def:crs:EPSG::4326">
+      <gml:pos>50.55 -122.22</gml:pos>
+    </gml:Point>
+  </gml:geometryMember>
+</gml:MultiGeometry>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Circle centered at YVR with radius 5 km -->
+<gml:Curve gml:id="Curve-ArcByCenterPoint" srsName="urn:ogc:def:crs:EPSG::4326"
+	xmlns:gml="http://www.opengis.net/gml/3.2">
+	<gml:segments>
+		<gml:CircleByCenterPoint numArc="1">
+			<gml:pos>49.194722 -123.183889</gml:pos>
+			<gml:radius uom="m">5000</gml:radius>
+		</gml:CircleByCenterPoint>
+	</gml:segments>
+</gml:Curve>

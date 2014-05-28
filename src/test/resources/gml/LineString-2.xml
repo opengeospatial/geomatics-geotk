@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gml:LineString gml:id="Curve-2" srsName="urn:ogc:def:crs:EPSG::32632" 
+  xmlns:gml="http://www.opengis.net/gml/3.2">
+  <gml:posList>430019 5626603 420991 5639460</gml:posList>
+</gml:LineString>
