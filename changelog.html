@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="Date-Revision-yyyymmdd" content="20140528" />
     <meta http-equiv="Content-Language" content="en" />
-    <title>Geomatics Utilities - Geomatics Utilities</title>
+    <title>Geomatics Utilities - Release Notes</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.3.1.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -60,17 +60,17 @@
                 <ul class="nav nav-list">
                     <li class="nav-header">Getting Started</li>
                               
-      <li class="active">
-  
-            <a href="#"><i class="none"></i>Overview</a>
-          </li>
-                
       <li>
   
-                          <a href="changelog.html" title="Release Notes">
+                          <a href="index.html" title="Overview">
           <i class="none"></i>
-        Release Notes</a>
+        Overview</a>
             </li>
+                
+      <li class="active">
+  
+            <a href="#"><i class="none"></i>Release Notes</a>
+          </li>
                               <li class="nav-header">Project Documentation</li>
                                                                                                   
       <li>
@@ -107,10 +107,53 @@
                 
         <div id="bodyColumn"  class="span9" >
                                   
-            <div class="section">
-<h2>Geomatics Utilities<a name="Geomatics_Utilities"></a></h2>
-<p>This component provides support for processing spatial data and associated metadata using various <a class="externalLink" href="http://www.geotoolkit.org/">Geotk modules</a>. The Geotk 3.x library implements the <a class="externalLink" href="http://www.geoapi.org/">GeoAPI v3</a> interfaces. Some of the utility methods compensate for deficient or partial support for GML 3.2.1 data representations.</p>
-<p><b>Note</b>: Work has started on migrating significant chunks of the Geotk 4.x code base to the <a class="externalLink" href="http://sis.apache.org/">Apache SIS</a> project.</p></div>
+            <h1>Release Notes</h1>
+<div class="section">
+<h2>1.7 (2014-05-28)<a name="a1.7_2014-05-28"></a></h2>
+<p>The project is now hosted at GitHub. This release introduces new site content, but the essential functionality of the library is unchanged.</p>
+
+<ul>
+  
+<li>Modify POM for GitHub.</li>
+  
+<li>Add site content.</li>
+  
+<li>Change license to Apache License, Version 2.0.</li>
+</ul></div>
+<div class="section">
+<h2>1.6 (2014-04-15)<a name="a1.6_2014-04-15"></a></h2>
+<p>This minor release includes the following fixes and updates:</p>
+
+<ul>
+  
+<li>Attempt to dereference remote curve member in GML ring.</li>
+  
+<li>Fix: Use List implementation that supports ListIterator.remove() in SurfaceCoordinateListFactory.</li>
+  
+<li>Fix: Do not use JTS LinearRing to obtain coordinates on GML ring geometry (limited support for GML curve segments).</li>
+  
+<li>Fix Javadoc errors reported when building with JDK 8.</li>
+  
+<li>Add unit tests.</li>
+</ul></div>
+<div class="section">
+<h2>1.5 (2014-02-06)<a name="a1.5_2014-02-06"></a></h2>
+<p>This release includes the following changes:</p>
+
+<ul>
+  
+<li>Find interior boundary for DOM representation of gml:Surface element (or extensions thereof).</li>
+  
+<li>Added utility method transformRingToRightHandedCS.</li>
+  
+<li>Merge constituent patches to determine exterior boundary of surface (SurfaceCoordinateListFactory).</li>
+  
+<li>Generate list of points on interior boundaries of surface.</li>
+  
+<li>Create list of coordinates delimiting external boundary of surface.</li>
+  
+<li>Fix: Add namespace binding to gml:Envelope (in Extents).</li>
+</ul></div>
                   </div>
             </div>
           </div>
