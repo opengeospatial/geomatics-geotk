@@ -1,6 +1,6 @@
 ﻿# Release Notes
 
-## 1.7-SNAPSHOT (2014-MM-DD)
+## 1.7 (2014-05-28)
 The project is now hosted at GitHub. This release introduces new site content, 
 but the essential functionality of the library is unchanged.
 
