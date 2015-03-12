@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<csw:SearchResults xmlns:csw="http://www.opengis.net/cat/csw/3.0"
+	xmlns:dc="http://purl.org/dc/elements/1.1/" 
+	xmlns:ows="http://www.opengis.net/ows/2.0"
+	nextRecord="3" numberOfRecordsMatched="17" numberOfRecordsReturned="2"
+	recordSchema="http://www.opengis.net/cat/csw/3.0" elementSet="brief">
+	<csw:Record>
+		<dc:identifier>urn:uuid:b088c412-f765-11e1-bf69-aa0000ae6bfc</dc:identifier>
+		<dc:title>Lakes</dc:title>
+		<dc:type>vector digital data</dc:type>
+		<ows:BoundingBox crs="urn:ogc:def:crs:EPSG::4326">
+			<ows:LowerCorner>32.0 -117.6</ows:LowerCorner>
+			<ows:UpperCorner>33.5 -116.2</ows:UpperCorner>
+		</ows:BoundingBox>
+	</csw:Record>
+	<csw:Record>
+		<dc:identifier>urn:uuid:b0a1c48a-f765-11e1-bf69-aa0000ae6bfc</dc:identifier>
+		<dc:title>Aquifers</dc:title>
+		<dc:type>vector digital data</dc:type>
+		<ows:WGS84BoundingBox>
+			<ows:LowerCorner>-116.0 32.6</ows:LowerCorner>
+			<ows:UpperCorner>-115.0 34.0</ows:UpperCorner>
+		</ows:WGS84BoundingBox>
+	</csw:Record>
+</csw:SearchResults>

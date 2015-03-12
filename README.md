@@ -8,8 +8,6 @@ library implements the [GeoAPI v3](http://www.geoapi.org/) interfaces.
 Visit the [project documentation website](http://opengeospatial.github.io/geomatics-geotk/) 
 for more information, including the API documentation.
 
-**Note**
-
 Apache Maven is required to build the project. Some dependencies are currently 
 not available in the Central repository. The POM includes the following remote 
 repository entry:
