@@ -4,6 +4,7 @@
 This maintenance release includes the following changes:
 
 * Add `Extents.coalesceBoundingBoxes` method
+* Add `Extents.getEnvelopeAsKVP` method
 * Amend `GeodesyUtils.getCRSIdentifier` to recognize CRS84 (WGS 84 with lon,lat 
 axis order; see ISO 19128, B.3)
 

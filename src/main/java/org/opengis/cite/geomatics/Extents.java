@@ -227,4 +227,44 @@ public class Extents {
 		}
 		return totalExtent;
 	}
+
+	/**
+	 * Returns a String representation of a bounding box suitable for use as a
+	 * query parameter value. The value consists of a comma-separated sequence
+	 * of items as indicated below:
+	 * 
+	 * <pre>
+	 * LowerCorner coordinate 1
+	 * LowerCorner coordinate 2
+	 * LowerCorner coordinate N
+	 * ...
+	 * UpperCorner coordinate 1
+	 * UpperCorner coordinate 2
+	 * UpperCorner coordinate N
+	 * crs URI (optional - default "urn:ogc:def:crs:OGC:1.3:CRS84")
+	 * </pre>
+	 * 
+	 * @param envelope
+	 *            An envelope specifying a geographic extent.
+	 * @return A String suitable for use as a query parameter value (KVP
+	 *         syntax).
+	 * 
+	 * @see <a target="_blank"
+	 *      href="http://portal.opengeospatial.org/files/?artifact_id=38867">OGC
+	 *      06-121r9, 10.2.3</a>
+	 */
+	public static String getEnvelopeAsKVP(Envelope envelope) {
+		StringBuilder kvp = new StringBuilder();
+		double[] lowerCorner = envelope.getLowerCorner().getCoordinate();
+		for (int i = 0; i < lowerCorner.length; i++) {
+			kvp.append(lowerCorner[i]).append(',');
+		}
+		double[] upperCorner = envelope.getUpperCorner().getCoordinate();
+		for (int i = 0; i < upperCorner.length; i++) {
+			kvp.append(upperCorner[i]).append(',');
+		}
+		kvp.append(GeodesyUtils.getCRSIdentifier(envelope
+				.getCoordinateReferenceSystem()));
+		return kvp.toString();
+	}
 }
