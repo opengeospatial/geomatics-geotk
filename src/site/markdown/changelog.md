@@ -1,5 +1,12 @@
 ﻿# Release Notes
 
+## 1.8 (2015-03-DD)
+This maintenance release includes the following changes:
+
+* Add `Extents.coalesceBoundingBoxes` method
+* Amend `GeodesyUtils.getCRSIdentifier` to recognize CRS84 (WGS 84 with lon,lat 
+axis order; see ISO 19128, B.3)
+
 ## 1.7 (2014-05-28)
 The project is now hosted at GitHub. This release introduces new site content, 
 but the essential functionality of the library is unchanged.

@@ -6,5 +6,5 @@ metadata using various [Geotk modules](http://www.geotoolkit.org/). The Geotk
 Some of the utility methods compensate for deficient or partial support for 
 GML 3.2.1 data representations.
 
-**Note**: Work has started on migrating significant chunks of the Geotk 4.x 
+**Note**: Work has started on migrating significant portions of the Geotk 4.x 
 code base to the [Apache SIS](http://sis.apache.org/) project.
