@@ -154,6 +154,53 @@ public class VerifyExtents extends CommonTestFixture {
 				34.0, -115.0 }, upperCorner.getCoordinate(), 0.1);
 	}
 
+	@Test
+	public void createEnvelopeFromBoundingBox_EPSG4326() throws SAXException,
+			IOException, FactoryException {
+		Document bbox = docBuilder.parse(this.getClass().getResourceAsStream(
+				"/envelopes/BoundingBox-4326.xml"));
+		Envelope envelope = Extents.createEnvelope(bbox);
+		assertNotNull("Envelope is null.", envelope);
+		DirectPosition lowerCorner = envelope.getLowerCorner();
+		assertArrayEquals("Unexpected lower corner position.", new double[] {
+				32.0, -117.6 }, lowerCorner.getCoordinate(), 0.1);
+		assertNotNull("CRS is null.", envelope.getCoordinateReferenceSystem());
+		assertThat("Unexpected CRS.", envelope.getCoordinateReferenceSystem()
+				.getIdentifiers().toString(),
+				StringContains.containsString("EPSG:4326"));
+	}
+
+	@Test
+	public void createEnvelopeFromGMLEnvelope_EPSG32610() throws SAXException,
+			IOException, FactoryException {
+		Document bbox = docBuilder.parse(this.getClass().getResourceAsStream(
+				"/envelopes/Envelope-UTM.xml"));
+		Envelope envelope = Extents.createEnvelope(bbox);
+		assertNotNull("Envelope is null.", envelope);
+		DirectPosition lowerCorner = envelope.getLowerCorner();
+		assertArrayEquals("Unexpected lower corner position.", new double[] {
+				514432, 5429689 }, lowerCorner.getCoordinate(), 0.1);
+		assertNotNull("CRS is null.", envelope.getCoordinateReferenceSystem());
+		assertThat("Unexpected CRS.", envelope.getCoordinateReferenceSystem()
+				.getIdentifiers().toString(),
+				StringContains.containsString("EPSG:32610"));
+	}
+
+	@Test
+	public void createEnvelopeFromWGS84BoundingBox() throws SAXException,
+			IOException, FactoryException {
+		Document bbox = docBuilder.parse(this.getClass().getResourceAsStream(
+				"/envelopes/WGS84BoundingBox.xml"));
+		Envelope envelope = Extents.createEnvelope(bbox);
+		assertNotNull("Envelope is null.", envelope);
+		DirectPosition upperCorner = envelope.getUpperCorner();
+		assertArrayEquals("Unexpected upper corner position.", new double[] {
+				-115.0, 34.0 }, upperCorner.getCoordinate(), 0.1);
+		assertNotNull("CRS is null.", envelope.getCoordinateReferenceSystem());
+		assertThat("Unexpected CRS.", envelope.getCoordinateReferenceSystem()
+				.getName().toString(), StringContains.containsString("WGS84"));
+	}
+
 	List<Node> getNodeListAsList(NodeList nodeList) {
 		List<Node> nodes = new ArrayList<>();
 		for (int i = 0; i < nodeList.getLength(); i++) {

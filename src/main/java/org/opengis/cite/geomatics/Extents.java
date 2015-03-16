@@ -2,7 +2,6 @@ package org.opengis.cite.geomatics;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
@@ -12,7 +11,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.geotoolkit.geometry.Envelopes;
-import org.geotoolkit.geometry.GeneralDirectPosition;
 import org.geotoolkit.geometry.GeneralEnvelope;
 import org.geotoolkit.geometry.jts.JTS;
 import org.geotoolkit.geometry.jts.JTSEnvelope2D;
@@ -43,6 +41,8 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public class Extents {
 
+	private static final String CRSREF_OWS = "crs";
+	private static final String CRSREF_GML = "srsName";
 	private static final String GML_NS = "http://www.opengis.net/gml/3.2";
 	private static final GeometryFactory JTS_GEOM_FACTORY = new GeometryFactory();
 
@@ -161,13 +161,13 @@ public class Extents {
 
 	/**
 	 * Coalesces a sequence of bounding boxes so as to create an envelope that
-	 * covers them all. The resulting envelope will use the same CRS as the
-	 * first bounding box; the remaining bounding boxes will be transformed to
-	 * this CRS if necessary.
+	 * covers all of them. The resulting envelope will use the same CRS as the
+	 * first bounding box in the list; the remaining bounding boxes will be
+	 * transformed to this CRS if necessary.
 	 * 
 	 * @param bboxNodes
 	 *            A list of elements representing common bounding boxes
-	 *            (ows:BoundingBox or ows:WGS84BoundingBox).
+	 *            (ows:BoundingBox, ows:WGS84BoundingBox, or gml:Envelope).
 	 * @return An Envelope encompassing the total extent of the given bounding
 	 *         boxes.
 	 * @throws FactoryException
@@ -180,44 +180,14 @@ public class Extents {
 	 */
 	public static Envelope coalesceBoundingBoxes(List<Node> bboxNodes)
 			throws FactoryException, TransformException {
-		CoordinateReferenceSystem crs = null;
 		GeneralEnvelope totalExtent = null;
-		for (Node boxNode : bboxNodes) {
-			Element bbox = (Element) boxNode;
-			String crsRef = bbox.getAttribute("crs");
-			if (crsRef.isEmpty() || crsRef.equals(GeodesyUtils.OGC_CRS84)) {
-				// lon,lat axis order
-				crs = DefaultGeographicCRS.WGS84;
-			} else {
-				String id = GeodesyUtils.getAbbreviatedCRSIdentifier(crsRef);
-				crs = CRS.decode(id);
-			}
-			String[] lowerCoords = bbox
-					.getElementsByTagNameNS(bbox.getNamespaceURI(),
-							"LowerCorner").item(0).getTextContent().trim()
-					.split("\\s");
-			String[] upperCoords = bbox
-					.getElementsByTagNameNS(bbox.getNamespaceURI(),
-							"UpperCorner").item(0).getTextContent().trim()
-					.split("\\s");
-			int dim = lowerCoords.length;
-			double[] coords = new double[dim * 2];
-			for (int i = 0; i < dim; i++) {
-				coords[i] = Double.parseDouble(lowerCoords[i]);
-				coords[i + dim] = Double.parseDouble(upperCoords[i]);
-			}
+		for (Node bboxNode : bboxNodes) {
+			Envelope nextEnv = createEnvelope(bboxNode);
 			if (null == totalExtent) { // first box
-				totalExtent = new GeneralEnvelope(crs);
-				totalExtent.setEnvelope(coords);
+				totalExtent = (GeneralEnvelope) nextEnv;
 			} else {
-				GeneralDirectPosition lowerCorner = new GeneralDirectPosition(
-						crs);
-				lowerCorner.setLocation(Arrays.copyOfRange(coords, 0, dim));
-				GeneralDirectPosition upperCorner = new GeneralDirectPosition(
-						crs);
-				upperCorner.setLocation(Arrays.copyOfRange(coords, dim,
-						coords.length));
-				Envelope nextEnv = new GeneralEnvelope(lowerCorner, upperCorner);
+				CoordinateReferenceSystem crs = nextEnv
+						.getCoordinateReferenceSystem();
 				if (!crs.equals(totalExtent.getCoordinateReferenceSystem())) {
 					nextEnv = Envelopes.transform(nextEnv,
 							totalExtent.getCoordinateReferenceSystem());
@@ -229,9 +199,63 @@ public class Extents {
 	}
 
 	/**
+	 * Creates an Envelope from the given XML representation of a spatial extent
+	 * (ows:BoundingBox, ows:WGS84BoundingBox, or gml:Envelope).
+	 * 
+	 * @param envelopeNode
+	 *            A DOM Node (Document or Element) representing a spatial
+	 *            envelope.
+	 * @return An Envelope defining an extent in some coordinate reference
+	 *         system.
+	 * @throws FactoryException
+	 *             If an unrecognized CRS reference is encountered or a
+	 *             corresponding CoordinateReferenceSystem cannot be constructed
+	 *             for some reason.
+	 */
+	public static Envelope createEnvelope(Node envelopeNode)
+			throws FactoryException {
+		Element envElem;
+		if (Document.class.isInstance(envelopeNode)) {
+			envElem = Document.class.cast(envelopeNode).getDocumentElement();
+		} else {
+			envElem = Element.class.cast(envelopeNode);
+		}
+		CoordinateReferenceSystem crs = null;
+		String crsRef = (envElem.hasAttribute(CRSREF_OWS)) ? envElem
+				.getAttribute(CRSREF_OWS) : envElem.getAttribute(CRSREF_GML);
+		if (crsRef.isEmpty() || crsRef.equals(GeodesyUtils.OGC_CRS84)) {
+			// lon,lat axis order
+			crs = DefaultGeographicCRS.WGS84;
+		} else {
+			String id = GeodesyUtils.getAbbreviatedCRSIdentifier(crsRef);
+			crs = CRS.decode(id);
+		}
+		GeneralEnvelope env = new GeneralEnvelope(crs);
+		String namespaceURI = envElem.getNamespaceURI();
+		String lowerCornerName = (namespaceURI.equals(GML_NS)) ? "lowerCorner"
+				: "LowerCorner";
+		String[] lowerCoords = envElem
+				.getElementsByTagNameNS(namespaceURI, lowerCornerName).item(0)
+				.getTextContent().trim().split("\\s");
+		String upperCornerName = (namespaceURI.equals(GML_NS)) ? "upperCorner"
+				: "UpperCorner";
+		String[] upperCoords = envElem
+				.getElementsByTagNameNS(namespaceURI, upperCornerName).item(0)
+				.getTextContent().trim().split("\\s");
+		int dim = lowerCoords.length;
+		double[] coords = new double[dim * 2];
+		for (int i = 0; i < dim; i++) {
+			coords[i] = Double.parseDouble(lowerCoords[i]);
+			coords[i + dim] = Double.parseDouble(upperCoords[i]);
+		}
+		env.setEnvelope(coords);
+		return env;
+	}
+
+	/**
 	 * Returns a String representation of a bounding box suitable for use as a
-	 * query parameter value. The value consists of a comma-separated sequence
-	 * of items as indicated below:
+	 * query parameter value (KVP syntax). The value consists of a
+	 * comma-separated sequence of data items as indicated below:
 	 * 
 	 * <pre>
 	 * LowerCorner coordinate 1
@@ -253,7 +277,7 @@ public class Extents {
 	 *      href="http://portal.opengeospatial.org/files/?artifact_id=38867">OGC
 	 *      06-121r9, 10.2.3</a>
 	 */
-	public static String getEnvelopeAsKVP(Envelope envelope) {
+	public static String envelopeToString(Envelope envelope) {
 		StringBuilder kvp = new StringBuilder();
 		double[] lowerCorner = envelope.getLowerCorner().getCoordinate();
 		for (int i = 0; i < lowerCorner.length; i++) {

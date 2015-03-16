@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ows:BoundingBox xmlns:ows="http://www.opengis.net/ows/2.0" crs="urn:ogc:def:crs:EPSG::4326">
+	<ows:LowerCorner>32.0 -117.6</ows:LowerCorner>
+	<ows:UpperCorner>33.5 -116.2</ows:UpperCorner>
+</ows:BoundingBox>

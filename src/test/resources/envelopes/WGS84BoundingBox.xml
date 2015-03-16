@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ows:WGS84BoundingBox xmlns:ows="http://www.opengis.net/ows/2.0">
+	<ows:LowerCorner>-116.0 32.6</ows:LowerCorner>
+	<ows:UpperCorner>-115.0 34.0</ows:UpperCorner>
+</ows:WGS84BoundingBox>
