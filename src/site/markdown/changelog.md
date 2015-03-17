@@ -1,8 +1,9 @@
 ﻿# Release Notes
 
-## 1.8 (2015-03-DD)
+## 1.8 (2015-03-17)
 This maintenance release includes the following changes:
 
+* Add SpatialAssert class to define custom assertions
 * Add `Extents.createEnvelope` method
 * Add `Extents.coalesceBoundingBoxes` method
 * Add `Extents.envelopeToString` method (KVP syntax)

@@ -168,8 +168,8 @@ public class Extents {
 	 * @param bboxNodes
 	 *            A list of elements representing common bounding boxes
 	 *            (ows:BoundingBox, ows:WGS84BoundingBox, or gml:Envelope).
-	 * @return An Envelope encompassing the total extent of the given bounding
-	 *         boxes.
+	 * @return A GeneralEnvelope encompassing the total extent of the given
+	 *         bounding boxes.
 	 * @throws FactoryException
 	 *             If an unrecognized CRS reference is encountered or a
 	 *             corresponding CoordinateReferenceSystem cannot be
@@ -178,11 +178,11 @@ public class Extents {
 	 *             If an attempt to perform a coordinate transformation fails
 	 *             for some reason.
 	 */
-	public static Envelope coalesceBoundingBoxes(List<Node> bboxNodes)
+	public static GeneralEnvelope coalesceBoundingBoxes(List<Node> bboxNodes)
 			throws FactoryException, TransformException {
 		GeneralEnvelope totalExtent = null;
 		for (Node bboxNode : bboxNodes) {
-			Envelope nextEnv = createEnvelope(bboxNode);
+			Envelope nextEnv = createGeneralEnvelope(bboxNode);
 			if (null == totalExtent) { // first box
 				totalExtent = (GeneralEnvelope) nextEnv;
 			} else {
@@ -199,20 +199,20 @@ public class Extents {
 	}
 
 	/**
-	 * Creates an Envelope from the given XML representation of a spatial extent
-	 * (ows:BoundingBox, ows:WGS84BoundingBox, or gml:Envelope).
+	 * Creates a GeneralEnvelope from the given XML representation of a spatial
+	 * extent (ows:BoundingBox, ows:WGS84BoundingBox, or gml:Envelope).
 	 * 
 	 * @param envelopeNode
 	 *            A DOM Node (Document or Element) representing a spatial
 	 *            envelope.
-	 * @return An Envelope defining an extent in some coordinate reference
-	 *         system.
+	 * @return A GeneralEnvelope defining a spatial extent in some coordinate
+	 *         reference system.
 	 * @throws FactoryException
 	 *             If an unrecognized CRS reference is encountered or a
 	 *             corresponding CoordinateReferenceSystem cannot be constructed
 	 *             for some reason.
 	 */
-	public static Envelope createEnvelope(Node envelopeNode)
+	public static GeneralEnvelope createGeneralEnvelope(Node envelopeNode)
 			throws FactoryException {
 		Element envElem;
 		if (Document.class.isInstance(envelopeNode)) {
@@ -267,6 +267,13 @@ public class Extents {
 	 * UpperCorner coordinate N
 	 * crs URI (optional - default "urn:ogc:def:crs:OGC:1.3:CRS84")
 	 * </pre>
+	 * 
+	 * <dl>
+	 * <dt>Example 1:</dt>
+	 * <dd>49.25,-123.1,50.0,-122.5,urn:ogc:def:crs:EPSG::4326</dd>
+	 * <dt>Example 2:</dt>
+	 * <dd>-123.1,49.25,-122.5,50.0</dd>
+	 * </dl>
 	 * 
 	 * @param envelope
 	 *            An envelope specifying a geographic extent.
