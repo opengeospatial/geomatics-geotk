@@ -1,5 +1,8 @@
 package org.opengis.cite.geomatics;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.geotoolkit.geometry.Envelopes;
 import org.geotoolkit.geometry.GeneralEnvelope;
 import org.opengis.geometry.Envelope;
@@ -14,6 +17,9 @@ import org.opengis.referencing.operation.TransformException;
  * @see "ISO 19125-1: Geographic information -- Simple feature access -- Part 1: Common architecture"
  */
 public class SpatialAssert {
+
+	private static final Logger LOGR = Logger.getLogger(SpatialAssert.class
+			.getPackage().getName());
 
 	/**
 	 * Asserts that the given envelopes intersect. The coordinate reference
@@ -51,6 +57,11 @@ public class SpatialAssert {
 				throw new AssertionError(msg.toString(), te);
 			}
 		}
+		LOGR.log(Level.FINE, String.format("env1: %s with CRS %s",
+				env1.toString(), GeodesyUtils.getCRSIdentifier(crs1)));
+		LOGR.log(Level.FINE, String.format("env: %s with CRS %s", env
+				.toString(), GeodesyUtils.getCRSIdentifier(env
+				.getCoordinateReferenceSystem())));
 		if (!env1.intersects(env, false)) {
 			StringBuilder msg = new StringBuilder(
 					"The envelopes do not intersect.\n");
