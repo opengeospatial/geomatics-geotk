@@ -269,11 +269,18 @@ public class Extents {
 	 * </pre>
 	 * 
 	 * <dl>
-	 * <dt>Example 1:</dt>
+	 * <dt>Examples:</dt>
 	 * <dd>49.25,-123.1,50.0,-122.5,urn:ogc:def:crs:EPSG::4326</dd>
-	 * <dt>Example 2:</dt>
+	 * <dd>472944,5363287,516011,5456383,urn:ogc:def:crs:EPSG::32610
 	 * <dd>-123.1,49.25,-122.5,50.0</dd>
 	 * </dl>
+	 * 
+	 * <p>
+	 * Note: The colon character (":") is allowed in the query component of a
+	 * URI and thus does not need to be escaped. See <a target="_blank"
+	 * href="https://tools.ietf.org/html/rfc3986#section-3.4">RFC 3986, sec.
+	 * 3.4</a>.
+	 * </p>
 	 * 
 	 * @param envelope
 	 *            An envelope specifying a geographic extent.
@@ -294,8 +301,12 @@ public class Extents {
 		for (int i = 0; i < upperCorner.length; i++) {
 			kvp.append(upperCorner[i]).append(',');
 		}
-		kvp.append(GeodesyUtils.getCRSIdentifier(envelope
-				.getCoordinateReferenceSystem()));
+		CoordinateReferenceSystem crs = envelope.getCoordinateReferenceSystem();
+		if (!crs.equals(DefaultGeographicCRS.WGS84)) {
+			kvp.append(GeodesyUtils.getCRSIdentifier(crs));
+		} else {
+			kvp.deleteCharAt(kvp.lastIndexOf(","));
+		}
 		return kvp.toString();
 	}
 }

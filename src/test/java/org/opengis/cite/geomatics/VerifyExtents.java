@@ -1,6 +1,10 @@
 package org.opengis.cite.geomatics;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,6 +19,7 @@ import javax.xml.xpath.XPathFactory;
 import org.geotoolkit.geometry.Envelopes;
 import org.geotoolkit.geometry.GeneralEnvelope;
 import org.geotoolkit.referencing.CRS;
+import org.geotoolkit.referencing.crs.DefaultGeographicCRS;
 import org.hamcrest.core.StringContains;
 import org.junit.Rule;
 import org.junit.Test;
@@ -199,6 +204,23 @@ public class VerifyExtents extends CommonTestFixture {
 		assertNotNull("CRS is null.", envelope.getCoordinateReferenceSystem());
 		assertThat("Unexpected CRS.", envelope.getCoordinateReferenceSystem()
 				.getName().toString(), StringContains.containsString("WGS84"));
+	}
+
+	@Test
+	public void writeWGS84BoundingBoxToString() {
+		GeneralEnvelope envelope = new GeneralEnvelope(
+				DefaultGeographicCRS.WGS84);
+		envelope.setEnvelope(new double[] { -116.0, 32.6, -115.0, 34.0 });
+		String kvp = Extents.envelopeToString(envelope);
+		assertEquals(kvp, "-116.0,32.6,-115.0,34.0");
+	}
+
+	@Test
+	public void writeEPSG4326BoundingBoxToString() throws FactoryException {
+		GeneralEnvelope envelope = new GeneralEnvelope(CRS.decode("EPSG:4326"));
+		envelope.setEnvelope(new double[] { 32.0, -117.6, 33.5, -116.2 });
+		String kvp = Extents.envelopeToString(envelope);
+		assertEquals(kvp, "32.0,-117.6,33.5,-116.2,urn:ogc:def:crs:EPSG::4326");
 	}
 
 	List<Node> getNodeListAsList(NodeList nodeList) {
