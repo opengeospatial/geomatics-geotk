@@ -27,20 +27,18 @@ public class SpatialAssert {
 	 * transformation will be attempted if necessary.
 	 * 
 	 * More specifically, this method asserts that the envelopes are not
-	 * disjoint:
+	 * disjoint.
 	 * 
 	 * <pre>
 	 * a.Intersects(b) <==> ! a.Disjoint(b)
 	 * </pre>
 	 * 
 	 * @param env1
-	 *            A GeneralEnvelope object representing a spatial extent.
+	 *            An Envelope representing a spatial extent.
 	 * @param env2
-	 *            A GeneralEnvelope object representing some other spatial
-	 *            extent.
+	 *            An Envelope object representing some other spatial extent.
 	 */
-	public static void assertIntersects(GeneralEnvelope env1,
-			GeneralEnvelope env2) {
+	public static void assertIntersects(Envelope env1, Envelope env2) {
 		CoordinateReferenceSystem crs1 = env1.getCoordinateReferenceSystem();
 		Envelope env = env2;
 		if (!env2.getCoordinateReferenceSystem().equals(crs1)) {
@@ -62,7 +60,8 @@ public class SpatialAssert {
 		LOGR.log(Level.FINE, String.format("env: %s with CRS %s", env
 				.toString(), GeodesyUtils.getCRSIdentifier(env
 				.getCoordinateReferenceSystem())));
-		if (!env1.intersects(env, false)) {
+		GeneralEnvelope genEnv1 = new GeneralEnvelope(env1);
+		if (!genEnv1.intersects(env, false)) {
 			StringBuilder msg = new StringBuilder(
 					"The envelopes do not intersect.\n");
 			msg.append(env1.toString()).append(" with CRS ")

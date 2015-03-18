@@ -126,7 +126,7 @@ public class VerifyExtents extends CommonTestFixture {
 						"//csw:Record/ows:BoundingBox[1] | //csw:Record/ows:WGS84BoundingBox[1]",
 						results, XPathConstants.NODESET);
 		List<Node> boxNodes = getNodeListAsList(boxes);
-		GeneralEnvelope envelope = Extents.coalesceBoundingBoxes(boxNodes);
+		Envelope envelope = Extents.coalesceBoundingBoxes(boxNodes);
 		assertNotNull("Envelope is null.", envelope);
 		DirectPosition lowerCorner = envelope.getLowerCorner();
 		assertArrayEquals("Unexpected lower corner position.", new double[] {
@@ -149,7 +149,7 @@ public class VerifyExtents extends CommonTestFixture {
 						"//csw:Record/ows:BoundingBox[1] | //csw:Record/ows:WGS84BoundingBox[1]",
 						results, XPathConstants.NODESET);
 		List<Node> boxNodes = getNodeListAsList(boxes);
-		GeneralEnvelope envelope = Extents.coalesceBoundingBoxes(boxNodes);
+		Envelope envelope = Extents.coalesceBoundingBoxes(boxNodes);
 		assertNotNull("Envelope is null.", envelope);
 		DirectPosition lowerCorner = envelope.getLowerCorner();
 		assertArrayEquals("Unexpected lower corner position.", new double[] {
@@ -164,7 +164,7 @@ public class VerifyExtents extends CommonTestFixture {
 			IOException, FactoryException {
 		Document bbox = docBuilder.parse(this.getClass().getResourceAsStream(
 				"/envelopes/BoundingBox-4326.xml"));
-		GeneralEnvelope envelope = Extents.createGeneralEnvelope(bbox);
+		Envelope envelope = Extents.createEnvelope(bbox);
 		assertNotNull("Envelope is null.", envelope);
 		DirectPosition lowerCorner = envelope.getLowerCorner();
 		assertArrayEquals("Unexpected lower corner position.", new double[] {
@@ -180,7 +180,7 @@ public class VerifyExtents extends CommonTestFixture {
 			IOException, FactoryException {
 		Document bbox = docBuilder.parse(this.getClass().getResourceAsStream(
 				"/envelopes/Envelope-UTM.xml"));
-		GeneralEnvelope envelope = Extents.createGeneralEnvelope(bbox);
+		Envelope envelope = Extents.createEnvelope(bbox);
 		assertNotNull("Envelope is null.", envelope);
 		DirectPosition lowerCorner = envelope.getLowerCorner();
 		assertArrayEquals("Unexpected lower corner position.", new double[] {
@@ -196,7 +196,7 @@ public class VerifyExtents extends CommonTestFixture {
 			IOException, FactoryException {
 		Document bbox = docBuilder.parse(this.getClass().getResourceAsStream(
 				"/envelopes/WGS84BoundingBox.xml"));
-		GeneralEnvelope envelope = Extents.createGeneralEnvelope(bbox);
+		Envelope envelope = Extents.createEnvelope(bbox);
 		assertNotNull("Envelope is null.", envelope);
 		DirectPosition upperCorner = envelope.getUpperCorner();
 		assertArrayEquals("Unexpected upper corner position.", new double[] {

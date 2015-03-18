@@ -168,8 +168,8 @@ public class Extents {
 	 * @param bboxNodes
 	 *            A list of elements representing common bounding boxes
 	 *            (ows:BoundingBox, ows:WGS84BoundingBox, or gml:Envelope).
-	 * @return A GeneralEnvelope encompassing the total extent of the given
-	 *         bounding boxes.
+	 * @return An Envelope encompassing the total extent of the given bounding
+	 *         boxes.
 	 * @throws FactoryException
 	 *             If an unrecognized CRS reference is encountered or a
 	 *             corresponding CoordinateReferenceSystem cannot be
@@ -178,11 +178,11 @@ public class Extents {
 	 *             If an attempt to perform a coordinate transformation fails
 	 *             for some reason.
 	 */
-	public static GeneralEnvelope coalesceBoundingBoxes(List<Node> bboxNodes)
+	public static Envelope coalesceBoundingBoxes(List<Node> bboxNodes)
 			throws FactoryException, TransformException {
 		GeneralEnvelope totalExtent = null;
 		for (Node bboxNode : bboxNodes) {
-			Envelope nextEnv = createGeneralEnvelope(bboxNode);
+			Envelope nextEnv = createEnvelope(bboxNode);
 			if (null == totalExtent) { // first box
 				totalExtent = (GeneralEnvelope) nextEnv;
 			} else {
@@ -199,20 +199,20 @@ public class Extents {
 	}
 
 	/**
-	 * Creates a GeneralEnvelope from the given XML representation of a spatial
-	 * extent (ows:BoundingBox, ows:WGS84BoundingBox, or gml:Envelope).
+	 * Creates an Envelope from the given XML representation of a spatial extent
+	 * (ows:BoundingBox, ows:WGS84BoundingBox, or gml:Envelope).
 	 * 
 	 * @param envelopeNode
 	 *            A DOM Node (Document or Element) representing a spatial
 	 *            envelope.
-	 * @return A GeneralEnvelope defining a spatial extent in some coordinate
+	 * @return An envelope defining a spatial extent in some coordinate
 	 *         reference system.
 	 * @throws FactoryException
 	 *             If an unrecognized CRS reference is encountered or a
 	 *             corresponding CoordinateReferenceSystem cannot be constructed
 	 *             for some reason.
 	 */
-	public static GeneralEnvelope createGeneralEnvelope(Node envelopeNode)
+	public static Envelope createEnvelope(Node envelopeNode)
 			throws FactoryException {
 		Element envElem;
 		if (Document.class.isInstance(envelopeNode)) {
