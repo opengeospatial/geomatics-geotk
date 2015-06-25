@@ -1,5 +1,11 @@
 ﻿# Release Notes
 
+## 1.9 (2015-MM-DD)
+This maintenance release includes the following fixes:
+
+* Fix NoSuchAuthorityCodeException when srsName is an 'http' URI (GeodesyUtils).
+* Update Maven plugins.
+
 ## 1.8 (2015-03-18)
 This maintenance release includes the following changes:
 

@@ -157,7 +157,8 @@ public class GeodesyUtils {
 				.createCoordinateList(gmlRing);
 		MathTransform crsTransform;
 		try {
-			CoordinateReferenceSystem sourceCRS = CRS.decode(srsName);
+			CoordinateReferenceSystem sourceCRS = CRS
+					.decode(getAbbreviatedCRSIdentifier(srsName));
 			CoordinateReferenceSystem targetCRS = CRS.decode(
 					getAbbreviatedCRSIdentifier(srsName), true);
 			crsTransform = CRS.findMathTransform(sourceCRS, targetCRS);
