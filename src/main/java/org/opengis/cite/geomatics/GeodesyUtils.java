@@ -213,6 +213,41 @@ public class GeodesyUtils {
 	}
 
 	/**
+	 * Converts an srsName identifier to the corresponding URN value if it is an
+	 * 'http' URI. The Geotk 3.x library does not recognize CRS identifiers
+	 * based on the 'http' schreme.
+	 * 
+	 * @param srsName
+	 *            An absolute URI that identifies a CRS in accord with OGC
+	 *            09-048r3.
+	 * @return A URN-based identifier (the given value is unchanged if it is not
+	 *         an 'http' URI).
+	 * 
+	 * @see <a target="_blank"
+	 *      href="http://portal.opengeospatial.org/files/?artifact_id=37802">OGC
+	 *      09-048r3, <em>Name type specification - definitions - part 1 - basic
+	 *      name</em></a>
+	 */
+	public static String convertSRSNameToURN(String srsName) {
+		if (!srsName.startsWith("http")) {
+			return srsName;
+		}
+		StringBuilder urn = new StringBuilder("urn:ogc:def:crs:");
+		String[] srsNameParts = srsName.split("/");
+		int numParts = srsNameParts.length;
+		// authority code
+		urn.append(srsNameParts[numParts - 3]).append(':');
+		// version (may be empty)
+		String ver = srsNameParts[numParts - 2];
+		if (!(ver.isEmpty() || ver.equals("0"))) {
+			urn.append(ver);
+		}
+		// CRS code
+		urn.append(':').append(srsNameParts[numParts - 1]);
+		return urn.toString();
+	}
+
+	/**
 	 * Checks a coordinate list for consecutive duplicate positions and removes
 	 * them. That is, P(n+1) is removed if it represents the same location as
 	 * P(n) within the specified tolerance. The third dimension is ignored.

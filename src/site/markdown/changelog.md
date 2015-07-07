@@ -1,9 +1,10 @@
 ﻿# Release Notes
 
-## 1.9 (2015-MM-DD)
+## 1.9 (2015-07-07)
 This maintenance release includes the following fixes:
 
-* Fix NoSuchAuthorityCodeException when srsName is an 'http' URI (GeodesyUtils).
+* Fix NoSuchAuthorityCodeException when srsName is an 'http' URI (not 
+recognized by Geotk v3).
 * Update Maven plugins.
 
 ## 1.8 (2015-03-18)

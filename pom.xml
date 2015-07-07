@@ -5,10 +5,10 @@
   <artifactId>geomatics-geotk</artifactId>
   <version>1.9-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>Geomatics Utilities</name>
+  <name>Geomatics Utilities (Geotk v3)</name>
   <description>
   Provides support for processing spatial data and associated metadata using
-  various Geotk modules (see http://www.geotoolkit.org/).
+  various Geotk 3.x modules (see http://www.geotoolkit.org/).
   </description>
   <url>http://opengeospatial.github.io/geomatics-geotk/</url>
   <licenses>
