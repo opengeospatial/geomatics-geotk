@@ -197,4 +197,21 @@ public class VerifyGeodesyUtils {
 		assertEquals("Unexpected CRS identifier", "urn:ogc:def:crs:EPSG::4326",
 				urn);
 	}
+
+	@Test
+	public void removeNextToLastDuplicate() {
+		List<Coordinate> coords = new ArrayList<Coordinate>();
+		coords.add(new Coordinate(557434.43, 4889943.44));
+		coords.add(new Coordinate(557416.84, 4889939.73));
+		coords.add(new Coordinate(557404.80, 4889951.77));
+		coords.add(new Coordinate(557402.02, 4889961.03));
+		coords.add(new Coordinate(557400.17, 4889969.36));
+		coords.add(new Coordinate(557400.17, 4889977.33));
+		coords.add(new Coordinate(557434.86, 4889943.52));
+		coords.add(new Coordinate(557434.43, 4889943.44));
+		GeodesyUtils.removeConsecutiveDuplicates(coords, 1);
+		assertEquals("Coordinate list has unexpected length.", 7, coords.size());
+		assertTrue("Expected first and last positions to coincide.", coords
+				.get(0).equals(coords.get(coords.size() - 1)));
+	}
 }

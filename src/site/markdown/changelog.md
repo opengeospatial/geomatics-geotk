@@ -1,5 +1,13 @@
 ﻿# Release Notes
 
+## 1.10 (2015-MM-DD)
+This maintenance release includes the following changes:
+
+* Fix [issue #1](https://github.com/opengeospatial/geomatics-geotk/issues/1): 
+do not remove final coordinate (sequence may form a closed curve).
+* Fix malformed Javadoc comments (JDK 8 doclint).
+
+
 ## 1.9 (2015-07-07)
 This maintenance release includes the following fixes:
 

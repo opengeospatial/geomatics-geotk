@@ -250,7 +250,10 @@ public class GeodesyUtils {
 	/**
 	 * Checks a coordinate list for consecutive duplicate positions and removes
 	 * them. That is, P(n+1) is removed if it represents the same location as
-	 * P(n) within the specified tolerance. The third dimension is ignored.
+	 * P(n) within the specified tolerance, <strong>unless</strong> it is the
+	 * last point in the list in which case P(n) is removed instead (the last
+	 * point may coincide with the first in order to form a cycle). The third
+	 * dimension is ignored.
 	 * 
 	 * @param coordList
 	 *            A list of Coordinate objects.
@@ -264,16 +267,21 @@ public class GeodesyUtils {
 			return;
 		double tolerance = tolerancePPM * 1E-06;
 		ListIterator<Coordinate> itr = coordList.listIterator();
-		Coordinate prevCoord = itr.next();
+		Coordinate coord = itr.next();
 		while (itr.hasNext()) {
-			Coordinate coord = itr.next();
-			double xDelta = Math.abs((coord.x / prevCoord.x) - 1.0);
-			double yDelta = Math.abs((coord.y / prevCoord.y) - 1.0);
+			Coordinate nextCoord = itr.next();
+			double xDelta = Math.abs((nextCoord.x / coord.x) - 1.0);
+			double yDelta = Math.abs((nextCoord.y / coord.y) - 1.0);
 			if ((xDelta <= tolerance) && (yDelta <= tolerance)) {
+				if (!itr.hasNext()) {
+					// remove next to last item
+					coordList.remove(coordList.size() - 2);
+					break;
+				}
 				itr.remove();
 				continue;
 			}
-			prevCoord = coord;
+			coord = nextCoord;
 		}
 	}
 }
