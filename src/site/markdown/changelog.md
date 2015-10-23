@@ -1,6 +1,6 @@
 ﻿# Release Notes
 
-## 1.10 (2015-MM-DD)
+## 1.10 (2015-10-23)
 This maintenance release includes the following changes:
 
 * Fix [issue #1](https://github.com/opengeospatial/geomatics-geotk/issues/1): 
