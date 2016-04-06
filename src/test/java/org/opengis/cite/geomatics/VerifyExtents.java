@@ -223,6 +223,27 @@ public class VerifyExtents extends CommonTestFixture {
 		assertEquals(kvp, "32.0,-117.6,33.5,-116.2,urn:ogc:def:crs:EPSG::4326");
 	}
 
+	@Test
+	public void envelopeFromLineStrings() throws SAXException, IOException,
+			XPathExpressionException, JAXBException {
+		Document multiCurve = docBuilder.parse(this.getClass()
+				.getResourceAsStream("/gml/MultiCurve-2.xml"));
+		XPath xpath = XPathFactory.newInstance().newXPath();
+		xpath.setNamespaceContext(new GmlUtils.NodeNamespaceContext(multiCurve));
+		NodeList nodes = (NodeList) xpath.evaluate("//gml:curveMembers/*",
+				multiCurve, XPathConstants.NODESET);
+		Envelope envelope = Extents.calculateEnvelope(nodes);
+		assertNotNull("Envelope is null.", envelope);
+		assertTrue("Expected CRS 'WGS 84'.",
+				envelope.getCoordinateReferenceSystem().getName().getCode()
+						.contains("WGS 84"));
+		DirectPosition upperCorner = envelope.getUpperCorner();
+		assertEquals("Unexpected ordinate[0] for upper corner.", 51.92,
+				upperCorner.getOrdinate(0), 0.005);
+		assertEquals("Unexpected ordinate[1] for upper corner.", 9.70,
+				upperCorner.getOrdinate(1), 0.005);
+	}
+
 	List<Node> getNodeListAsList(NodeList nodeList) {
 		List<Node> nodes = new ArrayList<>();
 		for (int i = 0; i < nodeList.getLength(); i++) {

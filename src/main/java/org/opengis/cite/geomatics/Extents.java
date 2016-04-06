@@ -79,6 +79,11 @@ public class Extents {
 			JAXBElement<AbstractGeometry> result = (JAXBElement<AbstractGeometry>) unmarshaller
 					.unmarshal(node);
 			AbstractGeometry gmlGeom = result.getValue();
+			String srsName = gmlGeom.getSrsName();
+			if (srsName.startsWith("http")) {
+				// not recognized in Geotk v3
+				gmlGeom.setSrsName(GeodesyUtils.convertSRSNameToURN(srsName));
+			}
 			crs = gmlGeom.getCoordinateReferenceSystem();
 			Geometry jtsGeom;
 			try {
