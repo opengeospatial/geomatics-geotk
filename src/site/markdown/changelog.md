@@ -1,5 +1,11 @@
 ﻿# Release Notes
 
+## 1.11 (2016-05-03)
+This maintenance release includes the following changes:
+
+* Allow CRS identifiers based on 'http' URI (Extents)
+
+
 ## 1.10 (2015-10-23)
 This maintenance release includes the following changes:
 

@@ -29,9 +29,11 @@ public class SpatialAssert {
 	 * More specifically, this method asserts that the envelopes are not
 	 * disjoint.
 	 * 
-	 * <pre>{@literal
+	 * <pre>
+	 * {@literal
 	 * a.Intersects(b) <--> ! a.Disjoint(b)
-	 * }</pre>
+	 * }
+	 * </pre>
 	 * 
 	 * @param env1
 	 *            An Envelope representing a spatial extent.
