@@ -1,11 +1,16 @@
 package org.opengis.cite.geomatics.gml;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
@@ -24,7 +29,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.opengis.cite.geomatics.GeodesyUtils;
-import org.opengis.cite.geomatics.gml.GmlUtils;
+import org.opengis.temporal.Period;
+import org.opengis.temporal.TemporalGeometricPrimitive;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -202,5 +208,21 @@ public class VerifyGmlUtils {
 		length.setValue(12.0);
 		assertEquals("Unexpected length (meters).", 12000,
 				GmlUtils.lengthInMeters(length), 0.5);
+	}
+
+	@Test
+	public void createPeriodFromGmlTimePeriod() throws SAXException,
+			IOException {
+		Document gmlPeriod = docBuilder.parse(this.getClass()
+				.getResourceAsStream("/gml/temporal/TimePeriod-UTC.xml"));
+		TemporalGeometricPrimitive tmPrimitive = GmlUtils
+				.gmlToTemporalGeometricPrimitive(gmlPeriod.getDocumentElement());
+		assertTrue("Expected object of type " + Period.class.getName(),
+				Period.class.isInstance(tmPrimitive));
+		Period period = Period.class.cast(tmPrimitive);
+		ZonedDateTime endTime = ZonedDateTime.parse("2016-07-10T22:05:39Z",
+				DateTimeFormatter.ISO_DATE_TIME);
+		assertTrue(Date.from(endTime.toInstant()).equals(
+				period.getEnding().getPosition().getDate()));
 	}
 }

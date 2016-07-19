@@ -1,7 +1,7 @@
 **Geomatics Utilities - Geotk**
   
 The `geomatics-geotk` library is used by several [OGC](http://www.opengeospatial.org/) 
-conformance test suites. It provides support for processing spatial data and associated 
+conformance test suites. It provides support for processing spatiotemporal data and associated 
 metadata using various [Geotk modules](http://www.geotoolkit.org/). The Geotk 3.x 
 library implements the [GeoAPI v3](http://www.geoapi.org/) interfaces.
 

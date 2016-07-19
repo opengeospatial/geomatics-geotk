@@ -1,5 +1,12 @@
 ﻿# Release Notes
 
+## 1.12 (2016-07-DD)
+This release includes the following enhancements:
+
+* Add GmlUtils#gmlToTemporalGeometricPrimitive
+* Add TemporalAssert#assertTemporalRelation
+
+
 ## 1.11 (2016-05-03)
 This maintenance release includes the following changes:
 
