@@ -1,8 +1,6 @@
 package org.opengis.cite.geomatics.gml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -18,8 +16,11 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.dom.DOMSource;
 
 import org.geotoolkit.gml.xml.AbstractCurveSegment;
+import org.geotoolkit.gml.xml.AbstractGeometry;
+import org.geotoolkit.gml.xml.Point;
 import org.geotoolkit.gml.xml.v321.CurveType;
 import org.geotoolkit.gml.xml.v321.LengthType;
 import org.geotoolkit.xml.MarshallerPool;
@@ -224,5 +225,28 @@ public class VerifyGmlUtils {
 				DateTimeFormatter.ISO_DATE_TIME);
 		assertTrue(Date.from(endTime.toInstant()).equals(
 				period.getEnding().getPosition().getDate()));
+	}
+
+	@Test
+	public void unmarshalPointFromURI() throws JAXBException,
+			URISyntaxException {
+		URL url = getClass().getResource("/gml/Point.xml");
+		AbstractGeometry geom = GmlUtils.unmarshalGMLGeometry(url.toURI());
+		assertTrue(Point.class.isInstance(geom));
+		Point point = Point.class.cast(geom);
+		assertEquals(52.27, point.getPos().getOrdinate(0), 0.005);
+	}
+
+	@Test
+	public void unmarshalPolygonFromSource() throws SAXException, IOException,
+			JAXBException {
+		Document doc = docBuilder.parse(this.getClass().getResourceAsStream(
+				"/gml/Polygon.xml"));
+		AbstractGeometry geom = GmlUtils
+				.unmarshalGMLGeometry(new DOMSource(doc));
+		assertTrue(org.geotoolkit.gml.xml.Polygon.class.isInstance(geom));
+		org.geotoolkit.gml.xml.Polygon polygon = org.geotoolkit.gml.xml.Polygon.class
+				.cast(geom);
+		assertFalse(polygon.getInterior().isEmpty());
 	}
 }

@@ -1,6 +1,5 @@
 package org.opengis.cite.geomatics.gml;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,6 +14,8 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.NamespaceContext;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -426,24 +427,33 @@ public class GmlUtils {
 	 * @param uriRef
 	 *            An absolute URI that specifies the location of the resource.
 	 * @return A GML geometry object.
-	 * @throws Exception
+	 * @throws JAXBException
 	 *             If any unexpected errors occur while unmarshalling.
 	 */
-	@SuppressWarnings("unchecked")
 	public static AbstractGeometry unmarshalGMLGeometry(URI uriRef)
-			throws Exception {
+			throws JAXBException {
 		if (!uriRef.isAbsolute()) {
 			throw new IllegalArgumentException("Not an absolute URI: " + uriRef);
 		}
-		JAXBElement<AbstractGeometry> gmlGeom = null;
-		try {
-			gmlGeom = (JAXBElement<AbstractGeometry>) GML_UNMARSHALLER
-					.unmarshal(uriRef.toURL());
-		} catch (MalformedURLException | JAXBException x) {
-			throw new Exception(
-					"Failed to unmarshal GML geometry from resource at "
-							+ uriRef, x);
-		}
+		Source source = new StreamSource(uriRef.toString());
+		return unmarshalGMLGeometry(source);
+	}
+
+	/**
+	 * Deserializes an XML source into a GML geometry representation.
+	 * 
+	 * @param source
+	 *            The source to read from (providers are only required to
+	 *            support SAXSource, DOMSource, and StreamSource).
+	 * @return A GML geometry object.
+	 * @throws JAXBException
+	 *             If any unexpected errors occur while unmarshalling.
+	 */
+	@SuppressWarnings("unchecked")
+	public static AbstractGeometry unmarshalGMLGeometry(Source source)
+			throws JAXBException {
+		JAXBElement<AbstractGeometry> gmlGeom = (JAXBElement<AbstractGeometry>) GML_UNMARSHALLER
+				.unmarshal(source);
 		return gmlGeom.getValue();
 	}
 

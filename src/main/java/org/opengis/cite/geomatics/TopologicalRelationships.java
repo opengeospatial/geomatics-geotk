@@ -3,15 +3,13 @@ package org.opengis.cite.geomatics;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.dom.DOMSource;
 
 import org.geotoolkit.geometry.jts.JTS;
 import org.geotoolkit.gml.GeometrytoJTS;
 import org.geotoolkit.gml.xml.AbstractGeometry;
 import org.geotoolkit.referencing.CRS;
-import org.geotoolkit.xml.MarshallerPool;
 import org.opengis.cite.geomatics.gml.GmlUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -55,45 +53,18 @@ public class TopologicalRelationships {
 	 * @return {@code true} if the geometries are not disjoint; {@code false}
 	 *         otherwise.
 	 * @throws TransformException
-	 *             If a coordinate transformation operation fails.
+	 *             If an attempted coordinate transformation operation fails.
 	 */
-	@SuppressWarnings("unchecked")
 	public static boolean intersects(Node node1, Node node2)
 			throws TransformException {
-		if (!node1.getNamespaceURI().equals(GmlUtils.GML_NS)
-				|| !node2.getNamespaceURI().equals(GmlUtils.GML_NS)) {
-			throw new IllegalArgumentException(
-					"Supplied nodes must be in the GML 3.2 namespace "
-							+ GmlUtils.GML_NS);
-		}
-		GmlUtils.setSrsNameOnCollectionMembers(node1, node2);
-		// unmarshal GML geometry representations
-		AbstractGeometry gmlGeom1;
-		AbstractGeometry gmlGeom2;
-		try {
-			MarshallerPool pool = new MarshallerPool(
-					"org.geotoolkit.gml.xml.v321");
-			Unmarshaller unmarshaller = pool.acquireUnmarshaller();
-			JAXBElement<AbstractGeometry> result = (JAXBElement<AbstractGeometry>) unmarshaller
-					.unmarshal(node1);
-			gmlGeom1 = result.getValue();
-			result = (JAXBElement<AbstractGeometry>) unmarshaller
-					.unmarshal(node2);
-			gmlGeom2 = result.getValue();
-		} catch (JAXBException e) {
-			throw new RuntimeException(e);
-		}
-		// NoSuchAuthorityCodeException if srsName is 'http' URI (Geotk v3)
-		gmlGeom1.setSrsName(GeodesyUtils.convertSRSNameToURN(gmlGeom1
-				.getSrsName()));
-		gmlGeom2.setSrsName(GeodesyUtils.convertSRSNameToURN(gmlGeom2
-				.getSrsName()));
+		AbstractGeometry gmlGeom1 = unmarshal(node1);
+		AbstractGeometry gmlGeom2 = unmarshal(node2);
 		Geometry jtsGeom1;
 		Geometry jtsGeom2;
 		try {
 			jtsGeom1 = GeometrytoJTS.toJTS(gmlGeom1);
 			jtsGeom2 = GeometrytoJTS.toJTS(gmlGeom2);
-			// CRS added as user data to JTS geometry
+			// add CRS as user data to JTS geometry
 			CoordinateReferenceSystem crs1 = JTS
 					.findCoordinateReferenceSystem(jtsGeom1);
 			CoordinateReferenceSystem crs2 = JTS
@@ -116,5 +87,30 @@ public class TopologicalRelationships {
 					jtsGeom1.toText(), jtsGeom2.toText()));
 		}
 		return jtsGeom1.intersects(jtsGeom2);
+	}
+
+	/**
+	 * Creates a GML geometry object from a DOM node.
+	 * 
+	 * @param geomNode
+	 *            A node representing a GML geometry instance.
+	 * @return A geometry object.
+	 */
+	static AbstractGeometry unmarshal(Node geomNode) {
+		if (!geomNode.getNamespaceURI().equals(GmlUtils.GML_NS)) {
+			throw new IllegalArgumentException(String.format(
+					"Node not in GML namespace: ", geomNode.getNamespaceURI()));
+		}
+		GmlUtils.setSrsNameOnCollectionMembers(geomNode);
+		AbstractGeometry gmlGeom;
+		try {
+			gmlGeom = GmlUtils.unmarshalGMLGeometry(new DOMSource(geomNode));
+		} catch (JAXBException e) {
+			throw new RuntimeException(e);
+		}
+		// NoSuchAuthorityCodeException if srsName is 'http' URI (Geotk v3)
+		gmlGeom.setSrsName(GeodesyUtils.convertSRSNameToURN(gmlGeom
+				.getSrsName()));
+		return gmlGeom;
 	}
 }
