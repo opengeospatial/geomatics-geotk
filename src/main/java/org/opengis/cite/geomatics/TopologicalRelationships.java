@@ -90,6 +90,50 @@ public class TopologicalRelationships {
 	}
 
 	/**
+	 * Determines whether or not two GML geometry representations are disjoint.
+	 * 
+	 * @param g1
+	 *            An Element node representing a GML geometry object.
+	 * @param g2
+	 *            An Element node representing another GML geometry object.
+	 * @return {@code true} if the geometries are disjoint; {@code false}
+	 *         otherwise.
+	 * @throws TransformException
+	 *             If an attempted coordinate transformation operation fails.
+	 */
+	public static boolean disjoint(Node g1, Node g2) throws TransformException {
+		return !intersects(g1, g2);
+	}
+
+	public static boolean touches(Node g1, Node g2) {
+		throw new UnsupportedOperationException();
+	}
+
+	public static boolean within(Node g1, Node g2) {
+		throw new UnsupportedOperationException();
+	}
+
+	public static boolean overlaps(Node g1, Node g2) {
+		throw new UnsupportedOperationException();
+	}
+
+	public static boolean crosses(Node g1, Node g2) {
+		throw new UnsupportedOperationException();
+	}
+
+	public static boolean contains(Node g1, Node g2) {
+		throw new UnsupportedOperationException();
+	}
+
+	public static boolean beyond(Node g1, Node g2, Node distance) {
+		throw new UnsupportedOperationException();
+	}
+
+	public static boolean withinDistance(Node g1, Node g2, Node distance) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
 	 * Creates a GML geometry object from a DOM node.
 	 * 
 	 * @param geomNode

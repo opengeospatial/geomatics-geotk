@@ -1,4 +1,4 @@
-package org.opengis.cite.geomatics;
+package org.opengis.cite.geomatics.time;
 
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;

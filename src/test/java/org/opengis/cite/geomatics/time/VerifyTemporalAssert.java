@@ -1,4 +1,4 @@
-package org.opengis.cite.geomatics;
+package org.opengis.cite.geomatics.time;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
