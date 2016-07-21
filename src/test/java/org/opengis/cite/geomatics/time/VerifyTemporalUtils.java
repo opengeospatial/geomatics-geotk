@@ -1,8 +1,11 @@
 package org.opengis.cite.geomatics.time;
 
+import static org.junit.Assert.assertTrue;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.TreeSet;
 
 import org.geotoolkit.temporal.factory.DefaultTemporalFactory;
 import org.geotoolkit.temporal.object.DefaultPosition;
@@ -13,8 +16,9 @@ import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
 import org.opengis.temporal.RelativePosition;
 import org.opengis.temporal.TemporalFactory;
+import org.opengis.temporal.TemporalGeometricPrimitive;
 
-public class VerifyTemporalAssert {
+public class VerifyTemporalUtils {
 
 	private static final TemporalFactory TM_FACTORY = new DefaultTemporalFactory();
 	@Rule
@@ -31,7 +35,7 @@ public class VerifyTemporalAssert {
 		Instant endPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
 				.from(t1.plusMonths(5).toInstant())));
 		Period period = TM_FACTORY.createPeriod(startPeriod, endPeriod);
-		TemporalAssert.assertTemporalRelation(RelativePosition.DURING, instant,
+		TemporalUtils.assertTemporalRelation(RelativePosition.DURING, instant,
 				period);
 	}
 
@@ -48,7 +52,7 @@ public class VerifyTemporalAssert {
 		Instant endPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
 				.from(t1.plusMonths(5).toInstant())));
 		Period period = TM_FACTORY.createPeriod(startPeriod, endPeriod);
-		TemporalAssert.assertTemporalRelation(RelativePosition.DURING, period,
+		TemporalUtils.assertTemporalRelation(RelativePosition.DURING, period,
 				instant);
 	}
 
@@ -63,7 +67,7 @@ public class VerifyTemporalAssert {
 		Instant endPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
 				.from(t1.plusMonths(5).toInstant())));
 		Period period = TM_FACTORY.createPeriod(startPeriod, endPeriod);
-		TemporalAssert.assertTemporalRelation(RelativePosition.BEFORE, instant,
+		TemporalUtils.assertTemporalRelation(RelativePosition.BEFORE, instant,
 				period);
 	}
 
@@ -80,7 +84,48 @@ public class VerifyTemporalAssert {
 		Instant endPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
 				.from(t1.minusMonths(1).toInstant())));
 		Period period = TM_FACTORY.createPeriod(startPeriod, endPeriod);
-		TemporalAssert.assertTemporalRelation(RelativePosition.BEFORE, instant,
+		TemporalUtils.assertTemporalRelation(RelativePosition.BEFORE, instant,
 				period);
+	}
+
+	@Test
+	public void temporalExtentOfDisjointTimes() {
+		TreeSet<TemporalGeometricPrimitive> tmSet = new TreeSet<>(
+				new TemporalComparator());
+		ZonedDateTime t1 = ZonedDateTime.of(2015, 12, 3, 10, 15, 30, 0,
+				ZoneId.of("Z"));
+		Instant instant = TM_FACTORY.createInstant(new DefaultPosition(Date
+				.from(t1.toInstant())));
+		tmSet.add(instant);
+		Instant startPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
+				.from(t1.minusMonths(5).toInstant())));
+		Instant endPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
+				.from(t1.minusMonths(1).toInstant())));
+		Period period = TM_FACTORY.createPeriod(startPeriod, endPeriod);
+		tmSet.add(period);
+		Period extent = TemporalUtils.temporalExtent(tmSet);
+		assertTrue("Expected duration: P5M", extent.length().toString()
+				.startsWith("P5M"));
+	}
+
+	@Test
+	public void temporalExtentOfIntersectingTimes() {
+		TreeSet<TemporalGeometricPrimitive> tmSet = new TreeSet<>(
+				new TemporalComparator());
+		ZonedDateTime t1 = ZonedDateTime.of(2015, 12, 3, 10, 15, 30, 0,
+				ZoneId.of("Z"));
+		Instant instant = TM_FACTORY.createInstant(new DefaultPosition(Date
+				.from(t1.toInstant())));
+		tmSet.add(instant);
+		// period CONTAINS instant
+		Instant startPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
+				.from(t1.minusMonths(5).toInstant())));
+		Instant endPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
+				.from(t1.plusMonths(2).toInstant())));
+		Period period = TM_FACTORY.createPeriod(startPeriod, endPeriod);
+		tmSet.add(period);
+		Period extent = TemporalUtils.temporalExtent(tmSet);
+		assertTrue("Expected duration: P7M", extent.length().toString()
+				.startsWith("P7M"));
 	}
 }

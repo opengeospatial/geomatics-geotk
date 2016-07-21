@@ -4,7 +4,7 @@
 This release includes the following enhancements:
 
 * Add GmlUtils::gmlToTemporalGeometricPrimitive
-* Add TemporalAssert, TemporalComparator
+* Add TemporalUtils, TemporalComparator
 
 
 ## 1.11 (2016-05-03)

@@ -16,6 +16,8 @@ public class TemporalComparator implements
 		int comparison = 0;
 		String relPos = t1.relativePosition(t2).name();
 		switch (relPos) {
+		case "DURING":
+			// discard (will not affect total temporal extent)
 		case "EQUALS":
 			comparison = 0;
 			break;
@@ -23,6 +25,8 @@ public class TemporalComparator implements
 			// t1.begin.position < t2.begin.position
 		case "MEETS":
 			// t1.end.position = t2.begin.position
+		case "CONTAINS":
+			// t1.begin.position < t2.begin.position
 		case "BEFORE":
 			comparison = -1;
 			break;
@@ -32,11 +36,7 @@ public class TemporalComparator implements
 			comparison = 1;
 			break;
 		default:
-			throw new RuntimeException(String.format(
-					"Unable to determine temporal order of %s and %s (%s)",
-					TemporalAssert.temporalGeometricPrimitiveToString(t1),
-					TemporalAssert.temporalGeometricPrimitiveToString(t2),
-					relPos));
+			// discard
 		}
 		return comparison;
 	}
