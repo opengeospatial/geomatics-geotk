@@ -1,8 +1,14 @@
 package org.opengis.cite.geomatics.time;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
+import java.util.Date;
 import java.util.TreeSet;
 
 import org.geotoolkit.temporal.factory.DefaultTemporalFactory;
+import org.geotoolkit.temporal.object.DefaultPosition;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
 import org.opengis.temporal.RelativePosition;
@@ -19,6 +25,8 @@ import org.opengis.temporal.TemporalGeometricPrimitive;
  *      knowledge about temporal intervals</a>
  */
 public class TemporalUtils {
+
+	private static final TemporalFactory TM_FACTORY = new DefaultTemporalFactory();
 
 	/**
 	 * Asserts that the first temporal primitive is related to the second one so
@@ -89,12 +97,14 @@ public class TemporalUtils {
 	}
 
 	/**
-	 * Determines the total temporal extent of a set of temporal primitives.
+	 * Determines the total temporal extent of a set of temporal primitives. The
+	 * actual interval is extended by one hour at each end to ensure it contains
+	 * all temporal objects in the set.
 	 * 
 	 * @param tmSet
 	 *            An ordered set of TemporalGeometricPrimitive objects (instant
 	 *            or period).
-	 * @return A period that spans the entire time range of the set members.
+	 * @return A period that contains the set members.
 	 */
 	public static Period temporalExtent(
 			TreeSet<TemporalGeometricPrimitive> tmSet) {
@@ -106,10 +116,11 @@ public class TemporalUtils {
 		} else {
 			startOfPeriod = Period.class.cast(first).getBeginning();
 		}
+		startOfPeriod = add(startOfPeriod, -1, ChronoUnit.HOURS);
 		Instant endOfPeriod;
 		if (last instanceof Instant) {
 			endOfPeriod = Instant.class.cast(last);
-			// check if last DURING first
+			// check if last occurs DURING first
 			if ((first instanceof Period)
 					&& endOfPeriod.relativePosition(
 							Period.class.cast(first).getEnding()).equals(
@@ -119,8 +130,30 @@ public class TemporalUtils {
 		} else {
 			endOfPeriod = Period.class.cast(last).getEnding();
 		}
-		TemporalFactory tmFactory = new DefaultTemporalFactory();
-		Period period = tmFactory.createPeriod(startOfPeriod, endOfPeriod);
-		return period;
+		endOfPeriod = add(endOfPeriod, 1, ChronoUnit.HOURS);
+		return TM_FACTORY.createPeriod(startOfPeriod, endOfPeriod);
+	}
+
+	/**
+	 * Returns a copy of the given instant with the specified amount added or
+	 * subtracted.
+	 * 
+	 * @param instant
+	 *            An instantaneous point in time.
+	 * @param amount
+	 *            The amount to add (positive) or subtract (negative).
+	 * @param unit
+	 *            The date-time unit of the amount.
+	 * @return A new Instant representing the resulting date-time value.
+	 */
+	public static Instant add(Instant instant, int amount, TemporalUnit unit) {
+		DateTimeFormatter xsdDateTimeFormatter = DateTimeFormatter
+				.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+		ZonedDateTime dateTime = ZonedDateTime.parse(instant.getPosition()
+				.getDateTime().toString(), xsdDateTimeFormatter);
+		ZonedDateTime newDateTime = dateTime.plus(amount, unit);
+		Instant newInstant = TM_FACTORY.createInstant(new DefaultPosition(Date
+				.from(newDateTime.toInstant())));
+		return newInstant;
 	}
 }

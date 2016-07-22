@@ -4,6 +4,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.TreeSet;
 
@@ -106,6 +108,12 @@ public class VerifyTemporalUtils {
 		Period extent = TemporalUtils.temporalExtent(tmSet);
 		assertTrue("Expected duration: P5M", extent.length().toString()
 				.startsWith("P5M"));
+		DateTimeFormatter xsdDateTimeFormatter = DateTimeFormatter
+				.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+		ZonedDateTime endDateTime = ZonedDateTime.parse(extent.getEnding()
+				.getPosition().getDateTime().toString(), xsdDateTimeFormatter);
+		assertTrue("Unexpected end of interval.", t1.plus(1, ChronoUnit.HOURS)
+				.isEqual(endDateTime));
 	}
 
 	@Test
@@ -127,5 +135,27 @@ public class VerifyTemporalUtils {
 		Period extent = TemporalUtils.temporalExtent(tmSet);
 		assertTrue("Expected duration: P7M", extent.length().toString()
 				.startsWith("P7M"));
+	}
+
+	@Test
+	public void add1Day() {
+		ZonedDateTime t1 = ZonedDateTime.of(2015, 12, 3, 10, 15, 30, 0,
+				ZoneId.of("Z"));
+		Instant instant = TM_FACTORY.createInstant(new DefaultPosition(Date
+				.from(t1.toInstant())));
+		Instant newInstant = TemporalUtils.add(instant, 1, ChronoUnit.DAYS);
+		assertTrue("Expected date 2015-12-04", newInstant.getPosition()
+				.getDateTime().toString().startsWith("2015-12-04"));
+	}
+
+	@Test
+	public void subtract1Month() {
+		ZonedDateTime t1 = ZonedDateTime.of(2015, 12, 3, 10, 15, 30, 0,
+				ZoneId.of("Z"));
+		Instant instant = TM_FACTORY.createInstant(new DefaultPosition(Date
+				.from(t1.toInstant())));
+		Instant newInstant = TemporalUtils.add(instant, -1, ChronoUnit.MONTHS);
+		assertTrue("Expected date 2015-11-03", newInstant.getPosition()
+				.getDateTime().toString().startsWith("2015-11-03"));
 	}
 }
