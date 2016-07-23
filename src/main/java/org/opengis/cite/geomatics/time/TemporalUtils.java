@@ -1,10 +1,13 @@
 package org.opengis.cite.geomatics.time;
 
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.TreeSet;
 
 import org.geotoolkit.temporal.factory.DefaultTemporalFactory;
@@ -148,12 +151,46 @@ public class TemporalUtils {
 	 */
 	public static Instant add(Instant instant, int amount, TemporalUnit unit) {
 		DateTimeFormatter xsdDateTimeFormatter = DateTimeFormatter
-				.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+				.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
 		ZonedDateTime dateTime = ZonedDateTime.parse(instant.getPosition()
 				.getDateTime().toString(), xsdDateTimeFormatter);
 		ZonedDateTime newDateTime = dateTime.plus(amount, unit);
 		Instant newInstant = TM_FACTORY.createInstant(new DefaultPosition(Date
 				.from(newDateTime.toInstant())));
 		return newInstant;
+	}
+
+	/**
+	 * Splits a time period into the specified number of intervals. Each
+	 * sub-interval will have approximately the same length.
+	 * 
+	 * @param period
+	 *            A temporal interval.
+	 * @param size
+	 *            The number of sub-intervals.
+	 * @return A sequence of contiguous sub-intervals (i.e. interval n MEETS
+	 *         interval n+1).
+	 */
+	public static List<Period> splitInterval(Period period, int size) {
+		DateTimeFormatter xsdDateTimeFormatter = DateTimeFormatter
+				.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
+		ZonedDateTime startDateTime = ZonedDateTime.parse(period.getBeginning()
+				.getPosition().getDateTime().toString(), xsdDateTimeFormatter);
+		ZonedDateTime endDateTime = ZonedDateTime.parse(period.getEnding()
+				.getPosition().getDateTime().toString(), xsdDateTimeFormatter);
+		Duration duration = Duration.between(startDateTime, endDateTime)
+				.dividedBy(size);
+		List<Period> subIntervals = new ArrayList<>();
+		for (int i = 0; i < size; i++) {
+			Instant startInstant = TM_FACTORY
+					.createInstant(new DefaultPosition(Date.from(startDateTime
+							.toInstant())));
+			endDateTime = startDateTime.plus(duration);
+			Instant endInstant = TM_FACTORY.createInstant(new DefaultPosition(
+					Date.from(endDateTime.toInstant())));
+			subIntervals.add(TM_FACTORY.createPeriod(startInstant, endInstant));
+			startDateTime = endDateTime;
+		}
+		return subIntervals;
 	}
 }

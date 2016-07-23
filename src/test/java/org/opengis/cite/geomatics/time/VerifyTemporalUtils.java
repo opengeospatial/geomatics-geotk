@@ -1,12 +1,13 @@
 package org.opengis.cite.geomatics.time;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import java.util.TreeSet;
 
 import org.geotoolkit.temporal.factory.DefaultTemporalFactory;
@@ -157,5 +158,21 @@ public class VerifyTemporalUtils {
 		Instant newInstant = TemporalUtils.add(instant, -1, ChronoUnit.MONTHS);
 		assertTrue("Expected date 2015-11-03", newInstant.getPosition()
 				.getDateTime().toString().startsWith("2015-11-03"));
+	}
+
+	@Test
+	public void splitPeriodInto2Intervals() {
+		ZonedDateTime t1 = ZonedDateTime.of(2015, 12, 3, 10, 15, 30, 0,
+				ZoneId.of("Z"));
+		Instant startPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
+				.from(t1.minusMonths(1).toInstant())));
+		Instant endPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
+				.from(t1.plusMonths(1).toInstant())));
+		Period period = TM_FACTORY.createPeriod(startPeriod, endPeriod);
+		List<Period> subIntervals = TemporalUtils.splitInterval(period, 2);
+		assertEquals(2, subIntervals.size());
+		assertTrue("",
+				subIntervals.get(0).relativePosition(subIntervals.get(1))
+						.equals(RelativePosition.MEETS));
 	}
 }
