@@ -106,11 +106,15 @@ public class TemporalUtils {
 	 * 
 	 * @param tmSet
 	 *            An ordered set of TemporalGeometricPrimitive objects (instant
-	 *            or period).
+	 *            or period); it cannot be empty.
 	 * @return A period that contains the set members.
 	 */
 	public static Period temporalExtent(
 			TreeSet<TemporalGeometricPrimitive> tmSet) {
+		if (tmSet.isEmpty()) {
+			throw new IllegalArgumentException(
+					"Empty Set<TemporalGeometricPrimitive>");
+		}
 		TemporalGeometricPrimitive first = tmSet.first();
 		TemporalGeometricPrimitive last = tmSet.last();
 		Instant startOfPeriod;
