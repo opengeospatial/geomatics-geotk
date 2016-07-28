@@ -1,6 +1,5 @@
 package org.opengis.cite.geomatics;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBException;
@@ -9,6 +8,7 @@ import javax.xml.transform.dom.DOMSource;
 import org.geotoolkit.geometry.jts.JTS;
 import org.geotoolkit.gml.GeometrytoJTS;
 import org.geotoolkit.gml.xml.AbstractGeometry;
+import org.geotoolkit.gml.xml.Curve;
 import org.geotoolkit.referencing.CRS;
 import org.opengis.cite.geomatics.gml.GmlUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -53,40 +53,44 @@ public class TopologicalRelationships {
 	 * @return {@code true} if the geometries are not disjoint; {@code false}
 	 *         otherwise.
 	 * @throws TransformException
-	 *             If an attempted coordinate transformation operation fails.
+	 *             If any coordinate operation (conversion or transformation)
+	 *             fails.
 	 */
 	public static boolean intersects(Node node1, Node node2)
 			throws TransformException {
-		AbstractGeometry gmlGeom1 = unmarshal(node1);
-		AbstractGeometry gmlGeom2 = unmarshal(node2);
-		Geometry jtsGeom1;
-		Geometry jtsGeom2;
+		Geometry g1 = toJTSGeometry(unmarshal(node1));
+		Geometry g2 = toJTSGeometry(unmarshal(node2));
 		try {
-			jtsGeom1 = GeometrytoJTS.toJTS(gmlGeom1);
-			jtsGeom2 = GeometrytoJTS.toJTS(gmlGeom2);
-			// add CRS as user data to JTS geometry
-			CoordinateReferenceSystem crs1 = JTS
-					.findCoordinateReferenceSystem(jtsGeom1);
-			CoordinateReferenceSystem crs2 = JTS
-					.findCoordinateReferenceSystem(jtsGeom2);
-			if (!crs1.getName().equals(crs2.getName())) {
-				if (LOGR.isLoggable(Level.FINE)) {
-					LOGR.fine(String
-							.format("Attempting coordinate transformation from CRS %s to %s",
-									crs1.getName(), crs2.getName()));
-				}
-				MathTransform transform = CRS.findMathTransform(crs1, crs2);
-				jtsGeom1 = JTS.transform(jtsGeom1, transform);
-				JTS.setCRS(jtsGeom1, crs2);
-			}
+			g1 = setCRS(g1, JTS.findCoordinateReferenceSystem(g2));
 		} catch (FactoryException fe) {
 			throw new RuntimeException(fe);
 		}
-		if (LOGR.isLoggable(Level.FINE)) {
-			LOGR.fine(String.format("JTS geometry objects:\n  %s\n  %s",
-					jtsGeom1.toText(), jtsGeom2.toText()));
+		return g1.intersects(g2);
+	}
+
+	/**
+	 * 
+	 * Builds a JTS geometry object from a GML geometry object.
+	 * 
+	 * @param gmlGeom
+	 *            A GML geometry.
+	 * @return A JTS geometry, or null if one could not be constructed.
+	 */
+	public static Geometry toJTSGeometry(AbstractGeometry gmlGeom) {
+		Geometry jtsGeom = null;
+		try {
+			jtsGeom = GeometrytoJTS.toJTS(gmlGeom);
+		} catch (FactoryException e1) {
+			throw new RuntimeException(e1);
+		} catch (IllegalArgumentException e2) {
+			// Unsupported in Geotk v3
+			if (Curve.class.isInstance(gmlGeom)) {
+				jtsGeom = GmlUtils.buildLineString(Curve.class.cast(gmlGeom));
+			}
 		}
-		return jtsGeom1.intersects(jtsGeom2);
+		LOGR.fine(String.format("Resulting JTS geometry:\n  %s",
+				jtsGeom.toText()));
+		return jtsGeom;
 	}
 
 	/**
@@ -96,10 +100,9 @@ public class TopologicalRelationships {
 	 *            An Element node representing a GML geometry object.
 	 * @param g2
 	 *            An Element node representing another GML geometry object.
-	 * @return {@code true} if the geometries are disjoint; {@code false}
-	 *         otherwise.
+	 * @return true if the geometries are disjoint; false otherwise.
 	 * @throws TransformException
-	 *             If an attempted coordinate transformation operation fails.
+	 *             If an attempted coordinate operation fails.
 	 */
 	public static boolean disjoint(Node g1, Node g2) throws TransformException {
 		return !intersects(g1, g2);
@@ -156,5 +159,36 @@ public class TopologicalRelationships {
 		gmlGeom.setSrsName(GeodesyUtils.convertSRSNameToURN(gmlGeom
 				.getSrsName()));
 		return gmlGeom;
+	}
+
+	/**
+	 * Checks that the given geometry object uses the specified CRS. If this is
+	 * not the case, an attempt is made to change it.
+	 * 
+	 * @param g1
+	 *            A JTS geometry object.
+	 * @param crs
+	 *            The target CRS.
+	 * @return A Geometry object that uses the indicated CRS (the original
+	 *         geometry if its CRS was unchanged).
+	 * @throws FactoryException
+	 *             If a CRS cannot be identified (e.g. a missing or invalid
+	 *             reference).
+	 * @throws TransformException
+	 *             If any coordinate operation (conversion or transformation)
+	 *             fails.
+	 */
+	static Geometry setCRS(Geometry g1, CoordinateReferenceSystem crs)
+			throws FactoryException, TransformException {
+		CoordinateReferenceSystem crs1 = JTS.findCoordinateReferenceSystem(g1);
+		Geometry g2 = null;
+		if (!crs1.getName().equals(crs.getName())) {
+			LOGR.fine(String.format("Attempting to change CRS %s to %s",
+					crs1.getName(), crs.getName()));
+			MathTransform transform = CRS.findMathTransform(crs1, crs);
+			g2 = JTS.transform(g1, transform);
+			JTS.setCRS(g2, crs);
+		}
+		return (null != g2) ? g2 : g1;
 	}
 }

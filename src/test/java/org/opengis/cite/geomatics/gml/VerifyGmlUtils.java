@@ -249,4 +249,18 @@ public class VerifyGmlUtils {
 				.cast(geom);
 		assertFalse(polygon.getInterior().isEmpty());
 	}
+
+	@Test
+	public void unmarshalCurveWithLineStringSegments() throws SAXException,
+			IOException, JAXBException {
+		Document doc = docBuilder.parse(this.getClass().getResourceAsStream(
+				"/gml/Curve-LineString.xml"));
+		AbstractGeometry geom = GmlUtils
+				.unmarshalGMLGeometry(new DOMSource(doc));
+		assertTrue(org.geotoolkit.gml.xml.Curve.class.isInstance(geom));
+		org.geotoolkit.gml.xml.Curve curve = org.geotoolkit.gml.xml.Curve.class
+				.cast(geom);
+		assertEquals("Curve has unexpected number of segments.", 2, curve
+				.getSegments().getAbstractCurveSegment().size());
+	}
 }

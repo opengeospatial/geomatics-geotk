@@ -107,4 +107,16 @@ public class VerifyTopologicalRelationships {
 				"Expected MultiCurve and LineString (UTM) to intersect.",
 				intersects);
 	}
+
+	@Test
+	public void disjointCurves() throws SAXException, IOException,
+			TransformException {
+		Document curve1 = docBuilder.parse(this.getClass().getResourceAsStream(
+				"/gml/Curve-LineString.xml"));
+		Document curve2 = docBuilder.parse(this.getClass().getResourceAsStream(
+				"/gml/LineString.xml"));
+		boolean disjoint = TopologicalRelationships.disjoint(
+				curve1.getDocumentElement(), curve2.getDocumentElement());
+		Assert.assertTrue("Expected curves to be disjoint.", disjoint);
+	}
 }

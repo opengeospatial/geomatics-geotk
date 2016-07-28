@@ -22,11 +22,14 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.geotoolkit.geometry.GeneralDirectPosition;
+import org.geotoolkit.geometry.jts.JTS;
 import org.geotoolkit.gml.xml.AbstractCurveSegment;
 import org.geotoolkit.gml.xml.AbstractGeometry;
+import org.geotoolkit.gml.xml.Curve;
 import org.geotoolkit.gml.xml.v321.AngleType;
 import org.geotoolkit.gml.xml.v321.ArcByCenterPointType;
 import org.geotoolkit.gml.xml.v321.LengthType;
+import org.geotoolkit.referencing.CRS;
 import org.geotoolkit.temporal.factory.DefaultTemporalFactory;
 import org.geotoolkit.temporal.object.DefaultPosition;
 import org.geotoolkit.xml.MarshallerPool;
@@ -36,6 +39,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.TemporalFactory;
 import org.opengis.temporal.TemporalGeometricPrimitive;
+import org.opengis.util.FactoryException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -44,6 +48,7 @@ import com.vividsolutions.jts.algorithm.ConvexHull;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 
 /**
  * Provides utility methods for processing representations of GML elements.
@@ -455,6 +460,35 @@ public class GmlUtils {
 		JAXBElement<AbstractGeometry> gmlGeom = (JAXBElement<AbstractGeometry>) GML_UNMARSHALLER
 				.unmarshal(source);
 		return gmlGeom.getValue();
+	}
+
+	/**
+	 * Creates a JTS LineString geometry from a GML Curve geometry. Some points
+	 * may be inferred if not given explicitly (e.g. on arc-based segments).
+	 * 
+	 * @param gmlCurve
+	 *            A GML curve.
+	 * @return A LineString, or null if one could not be constructed.
+	 */
+	public static LineString buildLineString(Curve gmlCurve) {
+		CoordinateListFactory coordFactory = new CurveCoordinateListFactory();
+		List<Coordinate> coordList = coordFactory
+				.createCoordinateList(gmlCurve);
+		GeodesyUtils.removeConsecutiveDuplicates(coordList, 1);
+		Coordinate[] coords = coordList
+				.toArray(new Coordinate[coordList.size()]);
+		GeometryFactory jtsFactory = new GeometryFactory();
+		LineString line = jtsFactory.createLineString(coords);
+		// add CRS to user data
+		CoordinateReferenceSystem crs = null;
+		try {
+			crs = CRS.decode(GeodesyUtils.convertSRSNameToURN(gmlCurve
+					.getSrsName()));
+			JTS.setCRS(line, crs);
+		} catch (FactoryException e) {
+			throw new RuntimeException(e.getMessage());
+		}
+		return line;
 	}
 
 	/**
