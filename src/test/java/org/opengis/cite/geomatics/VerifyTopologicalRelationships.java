@@ -37,7 +37,7 @@ public class VerifyTopologicalRelationships {
 		Document polygon = docBuilder.parse(this.getClass()
 				.getResourceAsStream("/gml/Polygon.xml"));
 		boolean intersects = TopologicalRelationships.isSpatiallyRelated(
-				"Intersects", point.getDocumentElement(),
+				SpatialRelationship.INTERSECTS, point.getDocumentElement(),
 				polygon.getDocumentElement());
 		Assert.assertTrue("Expected point to intersect polygon.", intersects);
 	}
@@ -50,7 +50,7 @@ public class VerifyTopologicalRelationships {
 		Document polygon = docBuilder.parse(this.getClass()
 				.getResourceAsStream("/gml/Polygon.xml"));
 		boolean intersects = TopologicalRelationships.isSpatiallyRelated(
-				"Intersects", curve.getDocumentElement(),
+				SpatialRelationship.INTERSECTS, curve.getDocumentElement(),
 				polygon.getDocumentElement());
 		Assert.assertFalse("Expected curve and polygon to be disjoint.",
 				intersects);
@@ -64,7 +64,7 @@ public class VerifyTopologicalRelationships {
 		Document point = docBuilder.parse(this.getClass().getResourceAsStream(
 				"/gml/Point.xml"));
 		boolean intersects = TopologicalRelationships.isSpatiallyRelated(
-				"Intersects", mSurface.getDocumentElement(),
+				SpatialRelationship.INTERSECTS, mSurface.getDocumentElement(),
 				point.getDocumentElement());
 		Assert.assertTrue("Expected Point and MultiSurface to intersect.",
 				intersects);
@@ -78,7 +78,7 @@ public class VerifyTopologicalRelationships {
 		Document point = docBuilder.parse(this.getClass().getResourceAsStream(
 				"/gml/Point-srsName-http.xml"));
 		boolean intersects = TopologicalRelationships.isSpatiallyRelated(
-				"Intersects", mSurface.getDocumentElement(),
+				SpatialRelationship.INTERSECTS, mSurface.getDocumentElement(),
 				point.getDocumentElement());
 		Assert.assertTrue("Expected Point and MultiSurface to intersect.",
 				intersects);
@@ -94,7 +94,7 @@ public class VerifyTopologicalRelationships {
 		Document envelope = docBuilder.parse(this.getClass()
 				.getResourceAsStream("/gml/Envelope.xml"));
 		boolean intersects = TopologicalRelationships.isSpatiallyRelated(
-				"Intersects", point.getDocumentElement(),
+				SpatialRelationship.INTERSECTS, point.getDocumentElement(),
 				envelope.getDocumentElement());
 		Assert.assertFalse(intersects);
 	}
@@ -107,8 +107,8 @@ public class VerifyTopologicalRelationships {
 		Document line2 = docBuilder.parse(this.getClass().getResourceAsStream(
 				"/gml/LineString-2.xml"));
 		boolean intersects = TopologicalRelationships.isSpatiallyRelated(
-				"Intersects", multiCurve.getDocumentElement(),
-				line2.getDocumentElement());
+				SpatialRelationship.INTERSECTS,
+				multiCurve.getDocumentElement(), line2.getDocumentElement());
 		Assert.assertTrue(
 				"Expected MultiCurve and LineString (UTM) to intersect.",
 				intersects);
@@ -122,7 +122,7 @@ public class VerifyTopologicalRelationships {
 		Document curve2 = docBuilder.parse(this.getClass().getResourceAsStream(
 				"/gml/LineString.xml"));
 		boolean disjoint = TopologicalRelationships.isSpatiallyRelated(
-				"Disjoint", curve1.getDocumentElement(),
+				SpatialRelationship.DISJOINT, curve1.getDocumentElement(),
 				curve2.getDocumentElement());
 		Assert.assertTrue("Expected curves to be disjoint.", disjoint);
 	}

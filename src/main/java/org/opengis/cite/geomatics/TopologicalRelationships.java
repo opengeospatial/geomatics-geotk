@@ -31,27 +31,18 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 public class TopologicalRelationships {
 
-	private static final String EQUALS = "Equals";
-	private static final String INTERSECTS = "Intersects";
-	private static final String DISJOINT = "Disjoint";
-	private static final String TOUCHES = "Touches";
-	private static final String WITHIN = "Within";
-	private static final String OVERLAPS = "Overlaps";
-	private static final String CROSSES = "Crosses";
-	private static final String CONTAINS = "Contains";
-
 	private static final Logger LOGR = Logger
 			.getLogger(TopologicalRelationships.class.getPackage().getName());
 
 	/**
 	 * Determines whether or not two GML geometry representations are spatially
-	 * related. If the geometry representations have different CRS references,
-	 * an attempt will be made to change coordinates from one CRS to another
-	 * through the application of a coordinate operation (conversion or
-	 * transformation).
+	 * related in some manner. If the geometry representations have different
+	 * CRS references, an attempt will be made to change coordinates from one
+	 * CRS to another through the application of a coordinate operation
+	 * (conversion or transformation).
 	 *
-	 * @param spatialOp
-	 *            The name of a spatial relationship (operator).
+	 * @param predicate
+	 *            A spatial relationship (predicate).
 	 * @param node1
 	 *            An Element node representing a GML geometry object.
 	 * @param node2
@@ -59,8 +50,8 @@ public class TopologicalRelationships {
 	 * @return true if the geometries satisfy the given spatial relationship
 	 *         (e.g. g1 contains g2); false otherwise.
 	 */
-	public static boolean isSpatiallyRelated(String spatialOp, Node node1,
-			Node node2) {
+	public static boolean isSpatiallyRelated(SpatialRelationship predicate,
+			Node node1, Node node2) {
 		Geometry g1 = toJTSGeometry(unmarshal(node1));
 		Geometry g2 = toJTSGeometry(unmarshal(node2));
 		try {
@@ -69,7 +60,7 @@ public class TopologicalRelationships {
 			throw new RuntimeException(e);
 		}
 		boolean isRelated = false;
-		switch (spatialOp) {
+		switch (predicate) {
 		case INTERSECTS:
 			isRelated = g1.intersects(g2);
 			break;
@@ -95,8 +86,8 @@ public class TopologicalRelationships {
 			isRelated = g1.equalsTopo(g2);
 			break;
 		default:
-			throw new IllegalArgumentException("Unsupported spatial operator: "
-					+ spatialOp);
+			throw new IllegalArgumentException(
+					"Unsupported spatial predicate: " + predicate);
 		}
 		return isRelated;
 	}
