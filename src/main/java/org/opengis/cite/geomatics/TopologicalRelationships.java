@@ -20,7 +20,7 @@ import org.w3c.dom.Node;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * Provides methods to test for the existence of a specified topological spatial
+ * Provides methods to test for the existence of a specified spatial
  * relationship between two geometric objects.
  * 
  * @see <a
@@ -31,41 +31,82 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 public class TopologicalRelationships {
 
+	private static final String EQUALS = "Equals";
+	private static final String INTERSECTS = "Intersects";
+	private static final String DISJOINT = "Disjoint";
+	private static final String TOUCHES = "Touches";
+	private static final String WITHIN = "Within";
+	private static final String OVERLAPS = "Overlaps";
+	private static final String CROSSES = "Crosses";
+	private static final String CONTAINS = "Contains";
+
 	private static final Logger LOGR = Logger
 			.getLogger(TopologicalRelationships.class.getPackage().getName());
 
 	/**
-	 * Determines whether or not two GML geometry representations spatially
-	 * intersect. The result indicates whether or not the two geometries have at
-	 * least one point in common; more specifically:
-	 * 
-	 * <pre>
-	 * a.Intersects(b) &lt;==&gt; ! a.Disjoint(b)
-	 * </pre>
-	 * 
-	 * If the geometry representations have different CRS references, a
-	 * coordinate transformation operation is attempted.
-	 * 
+	 * Determines whether or not two GML geometry representations are spatially
+	 * related. If the geometry representations have different CRS references,
+	 * an attempt will be made to change coordinates from one CRS to another
+	 * through the application of a coordinate operation (conversion or
+	 * transformation).
+	 *
+	 * @param spatialOp
+	 *            The name of a spatial relationship (operator).
 	 * @param node1
 	 *            An Element node representing a GML geometry object.
 	 * @param node2
 	 *            An Element node representing another GML geometry object.
-	 * @return {@code true} if the geometries are not disjoint; {@code false}
-	 *         otherwise.
-	 * @throws TransformException
-	 *             If any coordinate operation (conversion or transformation)
-	 *             fails.
+	 * @return true if the geometries satisfy the given spatial relationship
+	 *         (e.g. g1 contains g2); false otherwise.
 	 */
-	public static boolean intersects(Node node1, Node node2)
-			throws TransformException {
+	public static boolean isSpatiallyRelated(String spatialOp, Node node1,
+			Node node2) {
 		Geometry g1 = toJTSGeometry(unmarshal(node1));
 		Geometry g2 = toJTSGeometry(unmarshal(node2));
 		try {
 			g1 = setCRS(g1, JTS.findCoordinateReferenceSystem(g2));
-		} catch (FactoryException fe) {
-			throw new RuntimeException(fe);
+		} catch (FactoryException | TransformException e) {
+			throw new RuntimeException(e);
 		}
-		return g1.intersects(g2);
+		boolean isRelated = false;
+		switch (spatialOp) {
+		case INTERSECTS:
+			isRelated = g1.intersects(g2);
+			break;
+		case DISJOINT:
+			isRelated = !g1.intersects(g2);
+			break;
+		case TOUCHES:
+			isRelated = g1.touches(g2);
+			break;
+		case WITHIN:
+			isRelated = g1.within(g2);
+			break;
+		case OVERLAPS:
+			isRelated = g1.overlaps(g2);
+			break;
+		case CROSSES:
+			isRelated = g1.crosses(g2);
+			break;
+		case CONTAINS:
+			isRelated = g1.contains(g2);
+			break;
+		case EQUALS:
+			isRelated = g1.equalsTopo(g2);
+			break;
+		default:
+			throw new IllegalArgumentException("Unsupported spatial operator: "
+					+ spatialOp);
+		}
+		return isRelated;
+	}
+
+	public static boolean isBeyond(Node g1, Node g2, Node distance) {
+		throw new UnsupportedOperationException();
+	}
+
+	public static boolean isWithinDistance(Node g1, Node g2, Node distance) {
+		throw new UnsupportedOperationException();
 	}
 
 	/**
@@ -76,7 +117,7 @@ public class TopologicalRelationships {
 	 *            A GML geometry.
 	 * @return A JTS geometry, or null if one could not be constructed.
 	 */
-	public static Geometry toJTSGeometry(AbstractGeometry gmlGeom) {
+	static Geometry toJTSGeometry(AbstractGeometry gmlGeom) {
 		Geometry jtsGeom = null;
 		try {
 			jtsGeom = GeometrytoJTS.toJTS(gmlGeom);
@@ -91,49 +132,6 @@ public class TopologicalRelationships {
 		LOGR.fine(String.format("Resulting JTS geometry:\n  %s",
 				jtsGeom.toText()));
 		return jtsGeom;
-	}
-
-	/**
-	 * Determines whether or not two GML geometry representations are disjoint.
-	 * 
-	 * @param g1
-	 *            An Element node representing a GML geometry object.
-	 * @param g2
-	 *            An Element node representing another GML geometry object.
-	 * @return true if the geometries are disjoint; false otherwise.
-	 * @throws TransformException
-	 *             If an attempted coordinate operation fails.
-	 */
-	public static boolean disjoint(Node g1, Node g2) throws TransformException {
-		return !intersects(g1, g2);
-	}
-
-	public static boolean touches(Node g1, Node g2) {
-		throw new UnsupportedOperationException();
-	}
-
-	public static boolean within(Node g1, Node g2) {
-		throw new UnsupportedOperationException();
-	}
-
-	public static boolean overlaps(Node g1, Node g2) {
-		throw new UnsupportedOperationException();
-	}
-
-	public static boolean crosses(Node g1, Node g2) {
-		throw new UnsupportedOperationException();
-	}
-
-	public static boolean contains(Node g1, Node g2) {
-		throw new UnsupportedOperationException();
-	}
-
-	public static boolean beyond(Node g1, Node g2, Node distance) {
-		throw new UnsupportedOperationException();
-	}
-
-	public static boolean withinDistance(Node g1, Node g2, Node distance) {
-		throw new UnsupportedOperationException();
 	}
 
 	/**

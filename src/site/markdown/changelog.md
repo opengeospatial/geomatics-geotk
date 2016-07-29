@@ -1,8 +1,9 @@
 ﻿# Release Notes
 
-## 1.12 (2016-07-DD)
+## 1.12 (2016-08-02)
 This release includes the following enhancements:
 
+* Support all named spatial relationship predicates based on the DE-9IM
 * Add GmlUtils::gmlToTemporalGeometricPrimitive
 * Add TemporalUtils, TemporalComparator
 
