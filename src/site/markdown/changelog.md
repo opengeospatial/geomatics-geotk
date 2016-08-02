@@ -4,8 +4,8 @@
 This release includes the following enhancements:
 
 * Support all named spatial relationship predicates based on the DE-9IM
+* Support all named temporal relationship predicates from ISO 19108 (TemporalUtils)
 * Add GmlUtils::gmlToTemporalGeometricPrimitive
-* Add TemporalUtils, TemporalComparator
 
 
 ## 1.11 (2016-05-03)

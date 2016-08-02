@@ -36,10 +36,10 @@ public class TopologicalRelationships {
 
 	/**
 	 * Determines whether or not two GML geometry representations are spatially
-	 * related in some manner. If the geometry representations have different
-	 * CRS references, an attempt will be made to change coordinates from one
-	 * CRS to another through the application of a coordinate operation
-	 * (conversion or transformation).
+	 * related in some manner (e.g. g1 contains g2). If the geometry
+	 * representations have different CRS references, an attempt will be made to
+	 * change coordinates from one CRS to another through the application of a
+	 * coordinate operation (conversion or transformation).
 	 *
 	 * @param predicate
 	 *            A spatial relationship (predicate).
@@ -47,8 +47,8 @@ public class TopologicalRelationships {
 	 *            An Element node representing a GML geometry object.
 	 * @param node2
 	 *            An Element node representing another GML geometry object.
-	 * @return true if the geometries satisfy the given spatial relationship
-	 *         (e.g. g1 contains g2); false otherwise.
+	 * @return true if the geometries satisfy the given spatial relationship ;
+	 *         false otherwise.
 	 */
 	public static boolean isSpatiallyRelated(SpatialRelationship predicate,
 			Node node1, Node node2) {

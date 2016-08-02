@@ -115,8 +115,7 @@ public class VerifyTopologicalRelationships {
 	}
 
 	@Test
-	public void disjointCurves() throws SAXException, IOException,
-			TransformException {
+	public void disjointCurves() throws SAXException, IOException {
 		Document curve1 = docBuilder.parse(this.getClass().getResourceAsStream(
 				"/gml/Curve-LineString.xml"));
 		Document curve2 = docBuilder.parse(this.getClass().getResourceAsStream(
@@ -126,4 +125,29 @@ public class VerifyTopologicalRelationships {
 				curve2.getDocumentElement());
 		Assert.assertTrue("Expected curves to be disjoint.", disjoint);
 	}
+
+	@Test
+	public void polygonContainsPoint() throws SAXException, IOException {
+		Document point = docBuilder.parse(this.getClass().getResourceAsStream(
+				"/gml/Point-2.xml"));
+		Document polygon = docBuilder.parse(this.getClass()
+				.getResourceAsStream("/gml/Polygon.xml"));
+		boolean contains = TopologicalRelationships.isSpatiallyRelated(
+				SpatialRelationship.CONTAINS, polygon.getDocumentElement(),
+				point.getDocumentElement());
+		Assert.assertTrue("Expected polygon CONTAINS point.", contains);
+	}
+
+	@Test
+	public void pointWithinPolygon() throws SAXException, IOException {
+		Document point = docBuilder.parse(this.getClass().getResourceAsStream(
+				"/gml/Point-2.xml"));
+		Document polygon = docBuilder.parse(this.getClass()
+				.getResourceAsStream("/gml/Polygon.xml"));
+		boolean within = TopologicalRelationships.isSpatiallyRelated(
+				SpatialRelationship.WITHIN, point.getDocumentElement(),
+				polygon.getDocumentElement());
+		Assert.assertTrue("Expected point WITHIN polygon.", within);
+	}
+
 }
