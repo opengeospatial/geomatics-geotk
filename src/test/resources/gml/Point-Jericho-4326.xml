@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gml:Point gml:id="Point-Jericho" srsName="urn:ogc:def:crs:EPSG::4326" 
+  xmlns:gml="http://www.opengis.net/gml/3.2">
+  <gml:name>Jericho Sailing Centre</gml:name>
+  <gml:pos>49.2756 -123.2015</gml:pos>
+</gml:Point>

@@ -13,6 +13,7 @@ import org.junit.rules.ExpectedException;
 import org.opengis.referencing.operation.TransformException;
 import org.opengis.util.FactoryException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 public class VerifyTopologicalRelationships {
@@ -150,4 +151,52 @@ public class VerifyTopologicalRelationships {
 		Assert.assertTrue("Expected point WITHIN polygon.", within);
 	}
 
+	@Test
+	public void pointsWithin8km_PROJCS() throws SAXException, IOException {
+		Document point1 = docBuilder.parse(this.getClass().getResourceAsStream(
+				"/gml/Point-Atkinson-32610.xml"));
+		Document point2 = docBuilder.parse(this.getClass().getResourceAsStream(
+				"/gml/Point-Jericho-32610.xml"));
+		Element fesDistance = docBuilder.newDocument().createElementNS(
+				"http://www.opengis.net/fes/2.0", "Distance");
+		fesDistance.setTextContent("8.0");
+		fesDistance.setAttribute("uom", "km");
+		boolean result = TopologicalRelationships.isWithinDistance(
+				point1.getDocumentElement(), point2.getDocumentElement(),
+				fesDistance);
+		Assert.assertTrue("Expected points to be less than 8 km apart.", result);
+	}
+
+	@Test
+	public void pointsNotWithin3nmi_GEOGCS() throws SAXException, IOException {
+		Document point1 = docBuilder.parse(this.getClass().getResourceAsStream(
+				"/gml/Point-Atkinson-4326.xml"));
+		Document point2 = docBuilder.parse(this.getClass().getResourceAsStream(
+				"/gml/Point-Jericho-4326.xml"));
+		Element fesDistance = docBuilder.newDocument().createElementNS(
+				"http://www.opengis.net/fes/2.0", "Distance");
+		fesDistance.setTextContent("3.0");
+		fesDistance.setAttribute("uom", "[nmi_i]");
+		boolean result = TopologicalRelationships.isWithinDistance(
+				point1.getDocumentElement(), point2.getDocumentElement(),
+				fesDistance);
+		Assert.assertFalse("Expected points to be more than 3 nmi apart.",
+				result);
+	}
+
+	@Test
+	public void pointsBeyond2mi_GEOGCS() throws SAXException, IOException {
+		Document point1 = docBuilder.parse(this.getClass().getResourceAsStream(
+				"/gml/Point-Atkinson-4326.xml"));
+		Document point2 = docBuilder.parse(this.getClass().getResourceAsStream(
+				"/gml/Point-Jericho-4326.xml"));
+		Element fesDistance = docBuilder.newDocument().createElementNS(
+				"http://www.opengis.net/fes/2.0", "Distance");
+		fesDistance.setTextContent("2.0");
+		fesDistance.setAttribute("uom", "[mi_i]");
+		boolean result = TopologicalRelationships.isBeyond(
+				point1.getDocumentElement(), point2.getDocumentElement(),
+				fesDistance);
+		Assert.assertTrue("Expected points to be more than 2 mi apart.", result);
+	}
 }

@@ -1,5 +1,11 @@
 ﻿# Release Notes
 
+## 1.13 (2016-08-DD)
+This release includes the following changes:
+
+* Add support for spatial predicates: DWithin, Beyond
+
+
 ## 1.12 (2016-08-02)
 This release includes the following enhancements:
 

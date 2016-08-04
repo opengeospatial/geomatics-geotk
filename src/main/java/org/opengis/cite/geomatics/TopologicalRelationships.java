@@ -2,6 +2,10 @@ package org.opengis.cite.geomatics;
 
 import java.util.logging.Logger;
 
+import javax.measure.converter.UnitConverter;
+import javax.measure.quantity.Length;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.dom.DOMSource;
 
@@ -15,15 +19,18 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.opengis.util.FactoryException;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.operation.distance.DistanceOp;
 
 /**
  * Provides methods to test for the existence of a specified spatial
  * relationship between two geometric objects.
  * 
- * @see <a
+ * @see <a target="_blank"
  *      href="http://portal.opengeospatial.org/files/?artifact_id=25355">OpenGIS
  *      Implementation Specification for Geographic information - Simple feature
  *      access - Part 1: Common architecture</a>
@@ -92,12 +99,95 @@ public class TopologicalRelationships {
 		return isRelated;
 	}
 
-	public static boolean isBeyond(Node g1, Node g2, Node distance) {
-		throw new UnsupportedOperationException();
+	/**
+	 * Tests whether or not the minimum (orthodromic) distance between two
+	 * geometry objects is less than the specified distance. That is,
+	 * 
+	 * <pre>
+	 * DWithin(A,B,d) &#8660; Distance(A,B) < d
+	 * </pre>
+	 * 
+	 * <p>
+	 * The computed distance is the shortest distance between the two nearest
+	 * points in the geometry instances, as measured along the surface of an
+	 * ellipsoid.
+	 * </p>
+	 * <p>
+	 * The unit of measure identifier for the given distance must be either a
+	 * standard unit symbol (from UCUM) or an absolute URI that refers to a unit
+	 * definition (unsupported). SI prefix symbols may also be used (see
+	 * examples below).
+	 * </p>
+	 * <ul>
+	 * <li>m : metre</li>
+	 * <li>km : kilometre</li>
+	 * <li>[mi_i] : international mile</li>
+	 * <li>[nmi_i] : international nautical mile</li>
+	 * <ul>
+	 *
+	 * @param geom1
+	 *            An Element node representing a GML geometry instance.
+	 * @param geom2
+	 *            An Element node representing some other GML geometry instance.
+	 * @param distanceWithUom
+	 *            An fes:Distance element with a unit of measurement.
+	 * @return true if the minimum distance between the geometries is less than
+	 *         the given quantity; false otherwise.
+	 *
+	 * @see <a target="_blank" href="http://unitsofmeasure.org/ucum.html">The
+	 *      Unified Code for Units of Measure (UCUM)</a>
+	 */
+	@SuppressWarnings("unchecked")
+	public static boolean isWithinDistance(Node geom1, Node geom2,
+			Element distanceWithUom) {
+		Geometry g1 = toJTSGeometry(unmarshal(geom1));
+		Geometry g2 = toJTSGeometry(unmarshal(geom2));
+		double orthodromicDist;
+		try {
+			g1 = setCRS(g1, JTS.findCoordinateReferenceSystem(g2));
+			CoordinateReferenceSystem crs1 = JTS
+					.findCoordinateReferenceSystem(g1);
+			Coordinate[] nearestPoints = DistanceOp.nearestPoints(g1, g2);
+			orthodromicDist = JTS.orthodromicDistance(nearestPoints[0],
+					nearestPoints[1], crs1);
+		} catch (FactoryException | TransformException e) {
+			throw new RuntimeException(e);
+		}
+		double maxDistance = Double.parseDouble(distanceWithUom
+				.getTextContent());
+		String uomId = distanceWithUom.getAttribute("uom");
+		LOGR.fine(String.format(
+				"Max distance = %s %s; calculated orthodromic distance = %s m",
+				maxDistance, uomId, orthodromicDist));
+		Unit<Length> uom = null;
+		if (uomId.contains(":")) {
+			// absolute URI ignored
+		} else {
+			uom = (Unit<Length>) Unit.valueOf(uomId);
+		}
+		UnitConverter converter = uom.getConverterTo(SI.METRE);
+		return orthodromicDist < converter.convert(maxDistance);
 	}
 
-	public static boolean isWithinDistance(Node g1, Node g2, Node distance) {
-		throw new UnsupportedOperationException();
+	/**
+	 * Tests whether or not the orthodromic distance between two geometry
+	 * objects is greater than or equal to the specified distance. That is,
+	 * 
+	 * <pre>
+	 * Beyond(A,B,d) &#8660; Distance(A,B) >= d
+	 * </pre>
+	 * 
+	 * @param g1
+	 *            An Element node representing a GML geometry instance.
+	 * @param g2
+	 *            An Element node representing some other GML geometry instance.
+	 * @param distanceWithUom
+	 *            An fes:Distance element with a unit of measurement.
+	 * @return true if the minimum distance between the geometries equals or
+	 *         exceeds the given quantity; false otherwise.
+	 */
+	public static boolean isBeyond(Node g1, Node g2, Element distanceWithUom) {
+		return !isWithinDistance(g1, g2, distanceWithUom);
 	}
 
 	/**
