@@ -104,7 +104,7 @@ public class TopologicalRelationships {
 	 * geometry objects is less than the specified distance. That is,
 	 * 
 	 * <pre>
-	 * DWithin(A,B,d) &#8660; Distance(A,B) < d
+	 * DWithin(A,B,d) &#8660; Distance(A,B) &lt; d
 	 * </pre>
 	 * 
 	 * <p>
@@ -119,11 +119,11 @@ public class TopologicalRelationships {
 	 * examples below).
 	 * </p>
 	 * <ul>
-	 * <li>m : metre</li>
-	 * <li>km : kilometre</li>
-	 * <li>[mi_i] : international mile</li>
-	 * <li>[nmi_i] : international nautical mile</li>
-	 * <ul>
+	 * <li><code>m</code> : metre</li>
+	 * <li><code>km</code> : kilometre</li>
+	 * <li><code>[mi_i]</code> : international mile</li>
+	 * <li><code>[nmi_i]</code> : international nautical mile</li>
+	 * </ul>
 	 *
 	 * @param geom1
 	 *            An Element node representing a GML geometry instance.
@@ -174,7 +174,7 @@ public class TopologicalRelationships {
 	 * objects is greater than or equal to the specified distance. That is,
 	 * 
 	 * <pre>
-	 * Beyond(A,B,d) &#8660; Distance(A,B) >= d
+	 * Beyond(A,B,d) &#8660; Distance(A,B) &gt;= d
 	 * </pre>
 	 * 
 	 * @param g1
