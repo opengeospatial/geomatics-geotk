@@ -114,16 +114,33 @@ public class TopologicalRelationships {
 	 * </p>
 	 * <p>
 	 * The unit of measure identifier for the given distance must be either a
-	 * standard unit symbol (from UCUM) or an absolute URI that refers to a unit
-	 * definition (unsupported). SI prefix symbols may also be used (see
-	 * examples below).
+	 * standard symbol for a unit of length (from UCUM) or an absolute URI that
+	 * refers to a unit definition (unsupported). SI prefix symbols may also be
+	 * used (see examples in the table below).
 	 * </p>
-	 * <ul>
-	 * <li><code>m</code> : metre</li>
-	 * <li><code>km</code> : kilometre</li>
-	 * <li><code>[mi_i]</code> : international mile</li>
-	 * <li><code>[nmi_i]</code> : international nautical mile</li>
-	 * </ul>
+	 * <table border="1" style="border-collapse: collapse">
+	 * <caption>Units of Length (UCUM)</caption>
+	 * <tr>
+	 * <th>Symbol (c/s)</th>
+	 * <th>Name</th>
+	 * </tr>
+	 * <tr>
+	 * <td><code>m</code></td>
+	 * <td>metre</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>km</code></td>
+	 * <td>kilometre</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>[mi_i]</code></td>
+	 * <td>international mile</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>[nmi_i]</code></td>
+	 * <td>international nautical mile</td>
+	 * </tr>
+	 * </table>
 	 *
 	 * @param geom1
 	 *            An Element node representing a GML geometry instance.
@@ -161,7 +178,7 @@ public class TopologicalRelationships {
 				maxDistance, uomId, orthodromicDist));
 		Unit<Length> uom = null;
 		if (uomId.contains(":")) {
-			// absolute URI ignored
+			// absolute URI is currently ignored
 		} else {
 			uom = (Unit<Length>) Unit.valueOf(uomId);
 		}

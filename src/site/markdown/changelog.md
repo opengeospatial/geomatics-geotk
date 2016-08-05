@@ -3,7 +3,7 @@
 ## 1.13 (2016-08-DD)
 This release includes the following changes:
 
-* Add support for spatial predicates: DWithin, Beyond
+* Add support for spatial predicates: DWithin, Beyond (based on orthodromic distance)
 
 
 ## 1.12 (2016-08-02)

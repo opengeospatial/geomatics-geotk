@@ -185,18 +185,19 @@ public class VerifyTopologicalRelationships {
 	}
 
 	@Test
-	public void pointsBeyond2mi_GEOGCS() throws SAXException, IOException {
-		Document point1 = docBuilder.parse(this.getClass().getResourceAsStream(
-				"/gml/Point-Atkinson-4326.xml"));
-		Document point2 = docBuilder.parse(this.getClass().getResourceAsStream(
-				"/gml/Point-Jericho-4326.xml"));
+	public void polygonAndLineWithin5km() throws SAXException, IOException {
+		Document polygon = docBuilder.parse(this.getClass()
+				.getResourceAsStream("/gml/Polygon-32610.xml"));
+		Document line = docBuilder.parse(this.getClass().getResourceAsStream(
+				"/gml/LineString-3.xml"));
 		Element fesDistance = docBuilder.newDocument().createElementNS(
 				"http://www.opengis.net/fes/2.0", "Distance");
-		fesDistance.setTextContent("2.0");
-		fesDistance.setAttribute("uom", "[mi_i]");
-		boolean result = TopologicalRelationships.isBeyond(
-				point1.getDocumentElement(), point2.getDocumentElement(),
+		fesDistance.setTextContent("5.0");
+		fesDistance.setAttribute("uom", "km");
+		boolean result = TopologicalRelationships.isWithinDistance(
+				polygon.getDocumentElement(), line.getDocumentElement(),
 				fesDistance);
-		Assert.assertTrue("Expected points to be more than 2 mi apart.", result);
+		Assert.assertTrue("Expected geometries to be less than 5 km apart.",
+				result);
 	}
 }
