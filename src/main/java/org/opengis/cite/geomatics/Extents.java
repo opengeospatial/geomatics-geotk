@@ -81,7 +81,7 @@ public class Extents {
                 // check ancestor nodes for CRS reference
                 GmlUtils.findCRSReference(geom);
             }
-            if (geom.getNodeName().startsWith("Multi")) {
+            if (geom.getLocalName().startsWith("Multi")) {
                 // explicitly set srsName on all members of geometry collection
                 GmlUtils.setSrsNameOnCollectionMembers(geom);
             }
@@ -98,7 +98,7 @@ public class Extents {
                 jtsGeom = GeometrytoJTS.toJTS(gmlGeom);
             } catch (FactoryException e) {
                 throw new RuntimeException(
-                        String.format("Failed to create JTS geometry from GML geometry: %s.\n Cause: %s",
+                        String.format("Failed to create JTS geometry from GML geometry: %s \nCause: %s",
                                 gmlGeom.toString(), e.getMessage()));
             }
             envelope.expandToInclude(jtsGeom.getEnvelopeInternal());
