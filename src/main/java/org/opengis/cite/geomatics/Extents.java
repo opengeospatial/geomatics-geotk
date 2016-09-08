@@ -76,12 +76,16 @@ public class Extents {
         com.vividsolutions.jts.geom.Envelope envelope = new com.vividsolutions.jts.geom.Envelope();
         CoordinateReferenceSystem crs = null;
         for (int i = 0; i < geomNodes.getLength(); i++) {
-            Node node = geomNodes.item(i);
-            if (node.getNodeName().startsWith("Multi")) {
-                // explicitly set srsName on members of geometry collection
-                GmlUtils.setSrsNameOnCollectionMembers(node);
+            Element geom = (Element) geomNodes.item(i);
+            if (geom.getAttribute("srsName").isEmpty()) {
+                // check ancestor nodes for CRS reference
+                GmlUtils.findCRSReference(geom);
             }
-            JAXBElement<AbstractGeometry> result = (JAXBElement<AbstractGeometry>) unmarshaller.unmarshal(node);
+            if (geom.getNodeName().startsWith("Multi")) {
+                // explicitly set srsName on all members of geometry collection
+                GmlUtils.setSrsNameOnCollectionMembers(geom);
+            }
+            JAXBElement<AbstractGeometry> result = (JAXBElement<AbstractGeometry>) unmarshaller.unmarshal(geom);
             AbstractGeometry gmlGeom = result.getValue();
             String srsName = gmlGeom.getSrsName();
             if (srsName.startsWith("http")) {
@@ -307,20 +311,27 @@ public class Extents {
 
     /**
      * Returns an envelope that is diametrically opposite to the specified
-     * envelope.
+     * envelope. The resulting envelope uses the CRS with EPSG code 4326 ("WGS
+     * 84").
      * 
      * @param envelope
-     *            An envelope that uses a global CRS.
+     *            An envelope (rectangle or cuboid).
      * @return A new Envelope that is located on the opposite side of the earth.
      */
     public static Envelope antipodalEnvelope(Envelope envelope) {
-        CoordinateReferenceSystem crs = envelope.getCoordinateReferenceSystem();
-        if (!crs.getDomainOfValidity().getDescription().toString().contains("World")) {
-            throw new IllegalArgumentException("Not a global CRS:" + envelope.getCoordinateReferenceSystem().getName());
+        GeneralEnvelope antipodalEnv;
+        try {
+            CoordinateReferenceSystem epsg4326 = CRS.decode("EPSG:4326");
+            if (!envelope.getCoordinateReferenceSystem().equals(epsg4326)) {
+                antipodalEnv = new GeneralEnvelope(CRS.transform(envelope, epsg4326));
+            } else {
+                antipodalEnv = new GeneralEnvelope(envelope);
+            }
+        } catch (FactoryException | TransformException e) {
+            throw new RuntimeException(e);
         }
-        GeneralEnvelope antipodalEnv = new GeneralEnvelope(crs);
-        double[] apLowerCorner = getAntipode(envelope.getLowerCorner().getCoordinate());
-        double[] apUpperCorner = getAntipode(envelope.getUpperCorner().getCoordinate());
+        double[] apLowerCorner = getAntipode(antipodalEnv.getLowerCorner().getCoordinate());
+        double[] apUpperCorner = getAntipode(antipodalEnv.getUpperCorner().getCoordinate());
         // swap first value so corner positions are correct
         double lower0 = apLowerCorner[0];
         apLowerCorner[0] = apUpperCorner[0];

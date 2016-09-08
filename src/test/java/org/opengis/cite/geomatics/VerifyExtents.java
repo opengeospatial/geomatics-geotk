@@ -230,12 +230,21 @@ public class VerifyExtents extends CommonTestFixture {
     }
 
     @Test
-    public void antipodalEnvelope() throws SAXException, IOException, FactoryException {
+    public void antipodalEnvelopeFrom4326() throws SAXException, IOException, FactoryException {
         Document bbox = docBuilder.parse(this.getClass().getResourceAsStream("/envelopes/BoundingBox-4326.xml"));
         Envelope envelope = Extents.createEnvelope(bbox);
         Envelope apEnvelope = Extents.antipodalEnvelope(envelope);
         double[] lowerCorner = apEnvelope.getLowerCorner().getCoordinate();
         assertArrayEquals(new double[] { -33.5, -117.6 + 180 }, lowerCorner, 0.01);
+    }
+
+    @Test
+    public void antipodalEnvelopeFrom32610() throws SAXException, IOException, FactoryException {
+        Document bbox = docBuilder.parse(this.getClass().getResourceAsStream("/envelopes/Envelope-UTM.xml"));
+        Envelope envelope = Extents.createEnvelope(bbox);
+        Envelope apEnvelope = Extents.antipodalEnvelope(envelope);
+        double[] lowerCorner = apEnvelope.getLowerCorner().getCoordinate();
+        assertArrayEquals(new double[] { -49.22, 57.20 }, lowerCorner, 0.01);
     }
 
     List<Node> getNodeListAsList(NodeList nodeList) {

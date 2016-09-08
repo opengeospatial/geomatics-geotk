@@ -1,10 +1,11 @@
 ﻿# Release Notes
 
-## 1.13 (2016-08-DD)
+## 1.13 (2016-09-DD)
 This release includes the following changes:
 
 * Add support for spatial predicates: DWithin, Beyond (based on orthodromic distance)
-
+* In Extents::calculateEnvelope, explicitly set srsName on members of geometry collection
+* In Extents, add utility method to calculate antipode of coordinate tuple
 
 ## 1.12 (2016-08-02)
 This release includes the following enhancements:
