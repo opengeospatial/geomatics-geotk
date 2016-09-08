@@ -57,7 +57,7 @@ public class TopologicalRelationships {
 	 * @return true if the geometries satisfy the given spatial relationship ;
 	 *         false otherwise.
 	 */
-	public static boolean isSpatiallyRelated(SpatialRelationship predicate,
+	public static boolean isSpatiallyRelated(SpatialOperator predicate,
 			Node node1, Node node2) {
 		Geometry g1 = toJTSGeometry(unmarshal(node1));
 		Geometry g2 = toJTSGeometry(unmarshal(node2));

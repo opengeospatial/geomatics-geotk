@@ -21,6 +21,7 @@ import org.geotoolkit.gml.xml.AbstractGeometry;
 import org.geotoolkit.referencing.CRS;
 import org.geotoolkit.referencing.crs.DefaultGeographicCRS;
 import org.geotoolkit.xml.MarshallerPool;
+import org.opengis.cite.geomatics.gml.GmlUtils;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -76,6 +77,10 @@ public class Extents {
         CoordinateReferenceSystem crs = null;
         for (int i = 0; i < geomNodes.getLength(); i++) {
             Node node = geomNodes.item(i);
+            if (node.getNodeName().startsWith("Multi")) {
+                // explicitly set srsName on members of geometry collection
+                GmlUtils.setSrsNameOnCollectionMembers(node);
+            }
             JAXBElement<AbstractGeometry> result = (JAXBElement<AbstractGeometry>) unmarshaller.unmarshal(node);
             AbstractGeometry gmlGeom = result.getValue();
             String srsName = gmlGeom.getSrsName();
@@ -88,7 +93,9 @@ public class Extents {
             try {
                 jtsGeom = GeometrytoJTS.toJTS(gmlGeom);
             } catch (FactoryException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(
+                        String.format("Failed to create JTS geometry from GML geometry: %s.\n Cause: %s",
+                                gmlGeom.toString(), e.getMessage()));
             }
             envelope.expandToInclude(jtsGeom.getEnvelopeInternal());
         }

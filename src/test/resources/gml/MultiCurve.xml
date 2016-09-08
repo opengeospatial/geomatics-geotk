@@ -2,16 +2,18 @@
 <gml:MultiCurve gml:id="River-2.MultiCurve" srsName="urn:ogc:def:crs:EPSG::4326"
 	srsDimension="2" xmlns:gml="http://www.opengis.net/gml/3.2">
 	<gml:curveMember>
-		<gml:LineString gml:id="River-2.LineString-1">
+		<gml:LineString gml:id="River-2.1">
 			<gml:posList>50.840027 8.007574 50.792438 7.707762 50.778161 7.510267
 				50.787679 7.277080 50.806177 7.042483
 			</gml:posList>
 		</gml:LineString>
 	</gml:curveMember>
 	<gml:curveMembers>
-		<gml:LineString gml:id="River-2.LineString-2" srsName="urn:ogc:def:crs:EPSG::32632"
-			xmlns:gml="http://www.opengis.net/gml/3.2">
+		<gml:LineString gml:id="River-2.2" srsName="urn:ogc:def:crs:EPSG::32632">
 			<gml:posList>354404 5455320 366851 5467981</gml:posList>
+		</gml:LineString>
+		<gml:LineString gml:id="River-2.3">
+			<gml:posList>49.1778, -123.2125 49.2069, -122.9111</gml:posList>
 		</gml:LineString>
 	</gml:curveMembers>
 </gml:MultiCurve>

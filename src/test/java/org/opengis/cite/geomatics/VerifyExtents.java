@@ -223,6 +223,13 @@ public class VerifyExtents extends CommonTestFixture {
     }
 
     @Test
+    public void antipodeOfPerth() {
+        double[] per = new double[] { -31.94, 115.97 };
+        double[] antipode = Extents.getAntipode(per);
+        assertArrayEquals(new double[] { 31.94, 115.97 - 180 }, antipode, 0.01);
+    }
+
+    @Test
     public void antipodalEnvelope() throws SAXException, IOException, FactoryException {
         Document bbox = docBuilder.parse(this.getClass().getResourceAsStream("/envelopes/BoundingBox-4326.xml"));
         Envelope envelope = Extents.createEnvelope(bbox);
