@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- use starting instant of implicit interval -->
+<gml:TimeInstant xmlns:gml="http://www.opengis.net/gml/3.2" gml:id="T-02"
+  frame="http://www.iso.org/iso/iso8601">
+  <gml:timePosition>2016-06-30TZ</gml:timePosition>
+</gml:TimeInstant>

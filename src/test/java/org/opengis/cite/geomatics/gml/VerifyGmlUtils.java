@@ -30,6 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.opengis.cite.geomatics.GeodesyUtils;
+import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
 import org.opengis.temporal.TemporalGeometricPrimitive;
 import org.w3c.dom.Document;
@@ -48,6 +49,8 @@ public class VerifyGmlUtils {
     private static final String EPSG_32632 = "urn:ogc:def:crs:EPSG::32632";
     private static Unmarshaller gmlUnmarshaller;
     private static GeometryFactory geomFactory;
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @BeforeClass
     public static void initFixture() throws Exception {
@@ -58,9 +61,6 @@ public class VerifyGmlUtils {
         gmlUnmarshaller = pool.acquireUnmarshaller();
         geomFactory = new GeometryFactory();
     }
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void setSrsNameOnMultiCurveMembers() throws SAXException, IOException {
@@ -175,17 +175,6 @@ public class VerifyGmlUtils {
     }
 
     @Test
-    public void createPeriodFromGmlTimePeriod() throws SAXException, IOException {
-        Document gmlPeriod = docBuilder.parse(this.getClass().getResourceAsStream("/gml/temporal/TimePeriod-UTC.xml"));
-        TemporalGeometricPrimitive tmPrimitive = GmlUtils
-                .gmlToTemporalGeometricPrimitive(gmlPeriod.getDocumentElement());
-        assertTrue("Expected object of type " + Period.class.getName(), Period.class.isInstance(tmPrimitive));
-        Period period = Period.class.cast(tmPrimitive);
-        ZonedDateTime endTime = ZonedDateTime.parse("2016-07-10T22:05:39Z", DateTimeFormatter.ISO_DATE_TIME);
-        assertTrue(Date.from(endTime.toInstant()).equals(period.getEnding().getPosition().getDate()));
-    }
-
-    @Test
     public void unmarshalPointFromURI() throws JAXBException, URISyntaxException {
         URL url = getClass().getResource("/gml/Point.xml");
         AbstractGeometry geom = GmlUtils.unmarshalGMLGeometry(url.toURI());
@@ -211,5 +200,42 @@ public class VerifyGmlUtils {
         org.geotoolkit.gml.xml.Curve curve = org.geotoolkit.gml.xml.Curve.class.cast(geom);
         assertEquals("Curve has unexpected number of segments.", 2,
                 curve.getSegments().getAbstractCurveSegment().size());
+    }
+
+    @Test
+    public void periodFromGmlTimePeriod() throws SAXException, IOException {
+        Document gmlPeriod = docBuilder.parse(this.getClass().getResourceAsStream("/gml/temporal/TimePeriod-UTC.xml"));
+        TemporalGeometricPrimitive tmPrimitive = GmlUtils
+                .gmlToTemporalGeometricPrimitive(gmlPeriod.getDocumentElement());
+        assertTrue("Expected object of type " + Period.class.getName(), Period.class.isInstance(tmPrimitive));
+        Period period = Period.class.cast(tmPrimitive);
+        ZonedDateTime endTime = ZonedDateTime.parse("2016-07-10T22:05:39Z", DateTimeFormatter.ISO_DATE_TIME);
+        assertTrue(Date.from(endTime.toInstant()).equals(period.getEnding().getPosition().getDate()));
+    }
+
+    @Test
+    public void instantFromGmlTimeInstantAsOffsetDateTime() throws SAXException, IOException {
+        Document gmlInstant = docBuilder
+                .parse(this.getClass().getResourceAsStream("/gml/temporal/TimeInstant-Offset.xml"));
+        TemporalGeometricPrimitive tmPrimitive = GmlUtils
+                .gmlToTemporalGeometricPrimitive(gmlInstant.getDocumentElement());
+        assertTrue("Expected object of type " + Instant.class.getName(), Instant.class.isInstance(tmPrimitive));
+        Instant tmInstant = Instant.class.cast(tmPrimitive);
+        ZonedDateTime zdt = ZonedDateTime.parse("2016-06-30T19:51:29Z", DateTimeFormatter.ISO_DATE_TIME);
+        assertTrue(Date.from(zdt.toInstant()).equals(tmInstant.getPosition().getDate()));
+    }
+
+    @Test
+    public void instantFromGmlTimeInstantAsDate() throws SAXException, IOException {
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage("Not an ISO instant");
+        Document gmlInstant = docBuilder
+                .parse(this.getClass().getResourceAsStream("/gml/temporal/TimeInstant-Date.xml"));
+        TemporalGeometricPrimitive tmPrimitive = GmlUtils
+                .gmlToTemporalGeometricPrimitive(gmlInstant.getDocumentElement());
+        assertTrue("Expected object of type " + Instant.class.getName(), Instant.class.isInstance(tmPrimitive));
+        Instant tmInstant = Instant.class.cast(tmPrimitive);
+        ZonedDateTime zdt = ZonedDateTime.parse("2016-06-30T00:00:00Z", DateTimeFormatter.ISO_DATE_TIME);
+        assertTrue(Date.from(zdt.toInstant()).equals(tmInstant.getPosition().getDate()));
     }
 }
