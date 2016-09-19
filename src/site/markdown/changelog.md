@@ -1,6 +1,6 @@
 ﻿# Release Notes
 
-## 1.13 (2016-09-DD)
+## 1.13 (2016-09-19)
 This release includes the following changes:
 
 * Add support for spatial predicates: DWithin, Beyond (based on orthodromic distance)
