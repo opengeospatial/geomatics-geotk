@@ -1,5 +1,12 @@
 ﻿# Release Notes
 
+## 1.14 (2016-11-DD)
+This maintenance release includes the following changes:
+
+* Extents::envelopeAsGML: Format decimal values using the root locale (Locale.ROOT)
+* GmlUtils::findCRSReference: Check child gml:pos, gml:posList elements for a CRS reference (@srsName)
+
+
 ## 1.13 (2016-09-19)
 This release includes the following changes:
 

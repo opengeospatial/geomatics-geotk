@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.xpath.XPath;
@@ -50,6 +51,22 @@ public class VerifyExtents extends CommonTestFixture {
         GeneralEnvelope envelope = new GeneralEnvelope(CRS.decode("EPSG:4326"));
         envelope.setEnvelope(49.05478, -123.49675, 50.78534, -122.88663);
         Document gmlEnv = Extents.envelopeAsGML(envelope);
+        Element docElem = gmlEnv.getDocumentElement();
+        assertEquals("Document element has unexpected [local name].", "Envelope", docElem.getLocalName());
+        assertEquals("Unexpected srsName.", "urn:ogc:def:crs:EPSG::4326", docElem.getAttribute("srsName"));
+        String[] upperOrds = docElem.getElementsByTagNameNS(GML_NS, "upperCorner").item(0).getTextContent()
+                .split("\\s");
+        assertEquals("Unexpected ordinate[1] for upper corner.", -122.88, Double.parseDouble(upperOrds[1]), 0.0005);
+    }
+
+    @Test
+    public void getEnvelopeAsGMLInOtherLocale() throws FactoryException {
+        Locale defaultLocale = Locale.getDefault();
+        Locale.setDefault(Locale.GERMANY);
+        GeneralEnvelope envelope = new GeneralEnvelope(CRS.decode("EPSG:4326"));
+        envelope.setEnvelope(49.05478, -123.49675, 50.78534, -122.88663);
+        Document gmlEnv = Extents.envelopeAsGML(envelope);
+        Locale.setDefault(defaultLocale);
         Element docElem = gmlEnv.getDocumentElement();
         assertEquals("Document element has unexpected [local name].", "Envelope", docElem.getLocalName());
         assertEquals("Unexpected srsName.", "urn:ogc:def:crs:EPSG::4326", docElem.getAttribute("srsName"));

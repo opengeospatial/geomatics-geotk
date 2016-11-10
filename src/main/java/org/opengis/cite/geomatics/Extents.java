@@ -2,8 +2,10 @@ package org.opengis.cite.geomatics;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.DoubleStream;
 
 import javax.xml.bind.JAXBElement;
@@ -124,13 +126,15 @@ public class Extents {
         Element gmlEnv = doc.createElementNS(GML_NS, "gml:Envelope");
         doc.appendChild(gmlEnv);
         gmlEnv.setAttribute("srsName", GeodesyUtils.getCRSIdentifier(envelope.getCoordinateReferenceSystem()));
-        DecimalFormat df = new DecimalFormat("#.##");
-        df.setRoundingMode(RoundingMode.DOWN);
+        NumberFormat numFormat = NumberFormat.getNumberInstance(Locale.ROOT);
+        DecimalFormat decFormat = DecimalFormat.class.cast(numFormat);
+        decFormat.applyPattern("#.##");
+        decFormat.setRoundingMode(RoundingMode.DOWN);
         StringBuffer lowerCoord = new StringBuffer();
         StringBuffer upperCoord = new StringBuffer();
         for (int i = 0; i < envelope.getDimension(); i++) {
-            lowerCoord.append(df.format(envelope.getMinimum(i)));
-            upperCoord.append(df.format(envelope.getMaximum(i)));
+            lowerCoord.append(decFormat.format(envelope.getMinimum(i)));
+            upperCoord.append(decFormat.format(envelope.getMaximum(i)));
             if (i < (envelope.getDimension() - 1)) {
                 lowerCoord.append(' ');
                 upperCoord.append(' ');

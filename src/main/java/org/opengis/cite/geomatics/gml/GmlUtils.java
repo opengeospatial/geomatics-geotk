@@ -314,10 +314,16 @@ public class GmlUtils {
                 expr = String.format("./ancestor::*[%s:boundedBy][1]/%1$s:boundedBy/%1$s:Envelope/@srsName", gmlPrefix);
                 xpath.setNamespaceContext(nsContext);
                 srsName = (String) xpath.evaluate(expr, geom, XPathConstants.STRING);
+                if (srsName.isEmpty()) {
+                    // look at child gml:posList, gml:pos elements
+                    expr = String.format("(./%s:posList | ./%1$s:pos)[1]/@srsName", gmlPrefix);
+                    srsName = (String) xpath.evaluate(expr, geom, XPathConstants.STRING);
+                }
             }
         } catch (XPathExpressionException xpe) {
             throw new RuntimeException(xpe);
         }
+
         if (!srsName.isEmpty()) {
             geom.setAttribute("srsName", srsName);
         }

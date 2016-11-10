@@ -104,6 +104,24 @@ public class VerifyGmlUtils {
     }
 
     @Test
+    public void findCRSReferenceInPointPos() throws SAXException, IOException {
+        Document doc = docBuilder.parse(this.getClass().getResourceAsStream("/gml/Point-3.xml"));
+        Element p1 = doc.getDocumentElement();
+        String crsRef = GmlUtils.findCRSReference(p1);
+        assertEquals("Geometry has unexpected CRS reference: " + p1.getAttributeNS(GmlUtils.GML_NS, "id"),
+                "urn:ogc:def:crs:EPSG::4258", crsRef);
+    }
+
+    @Test
+    public void findCRSReferenceInLinePosList() throws SAXException, IOException {
+        Document doc = docBuilder.parse(this.getClass().getResourceAsStream("/gml/LineString-3.xml"));
+        Element line = doc.getDocumentElement();
+        String crsRef = GmlUtils.findCRSReference(line);
+        assertEquals("Geometry has unexpected CRS reference: " + line.getAttributeNS(GmlUtils.GML_NS, "id"),
+                "http://www.opengis.net/def/crs/EPSG/0/32610", crsRef);
+    }
+
+    @Test
     @SuppressWarnings("unchecked")
     public void computeConvexHullForCurveWithLineStringSegment() throws JAXBException {
         URL url = this.getClass().getResource("/gml/Curve-LineString.xml");
