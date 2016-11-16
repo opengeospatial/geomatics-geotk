@@ -1,6 +1,6 @@
 ﻿# Release Notes
 
-## 1.14 (2016-11-DD)
+## 1.14 (2016-11-16)
 This maintenance release includes the following changes:
 
 * Extents::envelopeAsGML: Format decimal values using the root locale (Locale.ROOT)
