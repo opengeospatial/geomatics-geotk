@@ -1,5 +1,11 @@
 ﻿# Release Notes
 
+## 1.15 (2016-MM-DD)
+This maintenance release includes the following changes:
+
+* GeodesyUtils::removeConsecutiveDuplicates: Change data type of tolerancePPM parameter to double
+
+
 ## 1.14 (2016-11-16)
 This maintenance release includes the following changes:
 

@@ -262,7 +262,7 @@ public class GeodesyUtils {
 	 *            (ppm).
 	 */
 	public static void removeConsecutiveDuplicates(List<Coordinate> coordList,
-			int tolerancePPM) {
+			double tolerancePPM) {
 		if (coordList.size() < 2)
 			return;
 		double tolerance = tolerancePPM * 1E-06;
