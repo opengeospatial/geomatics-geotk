@@ -177,6 +177,48 @@ public class GeodesyUtils {
 		removeConsecutiveDuplicates(curveCoords, 1);
 		return curveCoords.toArray(new Coordinate[curveCoords.size()]);
 	}
+	
+	 /**
+         * Transforms the given GML ring to a right-handed coordinate system (if it
+         * does not already use one) and returns the resulting coordinate sequence.
+         * Many computational geometry algorithms assume right-handed coordinates.
+         * In some cases this can be achieved simply by changing the axis order; for
+         * example, from (lat,lon) to (lon,lat).
+         * 
+         * @param gmlRing
+         *            A representation of a GML ring (simple closed curve).
+         * @return A Coordinate[] array, or {@code null} if the original CRS could
+         *         not be identified.
+         */
+        public static Coordinate[] transformRingToRightHandedCSKeepAllCoords(AbstractRing gmlRing) {
+                String srsName = gmlRing.getSrsName();
+                if (null == srsName || srsName.isEmpty()) {
+                        return null;
+                }
+                CurveCoordinateListFactory curveCoordFactory = new CurveCoordinateListFactory();
+                List<Coordinate> curveCoords = curveCoordFactory
+                                .createCoordinateList(gmlRing);
+                MathTransform crsTransform;
+                try {
+                        CoordinateReferenceSystem sourceCRS = CRS
+                                        .decode(getAbbreviatedCRSIdentifier(srsName));
+                        CoordinateReferenceSystem targetCRS = CRS.decode(
+                                        getAbbreviatedCRSIdentifier(srsName), true);
+                        crsTransform = CRS.findMathTransform(sourceCRS, targetCRS);
+                } catch (FactoryException fx) {
+                        throw new RuntimeException(
+                                        "Failed to create coordinate transformer.", fx);
+                }
+                for (Coordinate coord : curveCoords) {
+                        try {
+                                JTS.transform(coord, coord, crsTransform);
+                        } catch (TransformException tx) {
+                                throw new RuntimeException("Failed to transform coordinate: "
+                                                + coord, tx);
+                        }
+                }
+                return curveCoords.toArray(new Coordinate[curveCoords.size()]);
+        }
 
 	/**
 	 * Returns an abbreviated identifier for the given CRS reference. The result
