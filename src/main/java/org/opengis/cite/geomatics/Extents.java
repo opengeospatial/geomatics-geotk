@@ -11,7 +11,6 @@ import java.util.stream.DoubleStream;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -32,7 +31,6 @@ import org.opengis.referencing.operation.TransformException;
 import org.opengis.util.FactoryException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -93,7 +91,7 @@ public class Extents {
             // Convert to MultiCurve or MultiSurface from Curve or Surface node resp.
             // As geotoolkit(3.21) is not supporting Curve and Surface geometry type.
             if (geom.getLocalName().equals("Curve") || geom.getLocalName().equals("Surface")) {
-                geom = convertToMultiType(geomNodes.item(i));
+                geom = GmlUtils.convertToMultiType(geomNodes.item(i));
             }
             JAXBElement<AbstractGeometry> result = (JAXBElement<AbstractGeometry>) unmarshaller.unmarshal(geom);
             AbstractGeometry gmlGeom = result.getValue();
@@ -370,65 +368,5 @@ public class Extents {
             antipode[1] -= 180;
         }
         return antipode;
-    }
-    
-    /**
-     * Convert Surface or Curve geometry to MultiSurface or MultiCurve.
-     * 
-     * @param geomNode
-     *            Element with Surface/Curve details.
-     * 
-     * @return {@link Element} Returns converted element to Multi geometry type.
-     */
-    public static Element convertToMultiType(Node geomNode) {
-        String typeName = "Multi" + geomNode.getLocalName();
-        String geomMemberType = geomNode.getLocalName().equalsIgnoreCase("Curve") ? "curveMember" : "surfaceMember";
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        DocumentBuilder db = null;
-
-        try {
-            db = dbf.newDocumentBuilder();
-        } catch (ParserConfigurationException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-
-        Document document = db.newDocument();
-        Element multiGeom = document.createElementNS(geomNode.getNamespaceURI(), typeName);
-        Element memberType = document.createElementNS(geomNode.getNamespaceURI(), geomMemberType);
-        Node importNode = document.importNode(geomNode, true);
-        NamedNodeMap attributes = geomNode.getAttributes();
-
-        for (Integer i = 0; i < attributes.getLength(); i++) {
-            String attributeNamespace = attributes.item(i).getNamespaceURI();
-            String attributeName = attributes.item(i).getLocalName();
-            String attributeValue = attributes.item(i).getNodeValue();
-
-            multiGeom.setAttributeNS(attributeNamespace, attributeName, attributeValue);
-        }
-
-        // In case of Surface geometry type
-        if (typeName.equalsIgnoreCase("MultiSurface")) {
-            Element polygon = document.createElementNS(geomNode.getNamespaceURI(), "Polygon");
-
-            NodeList nodeList = importNode.getChildNodes();
-            for (Integer i = 0; i < nodeList.getLength(); i++) {
-                Node currentNode = nodeList.item(i);
-                if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
-                    if (currentNode.getLocalName().equalsIgnoreCase("exterior")) {
-                        importNode = currentNode;
-                        break;
-                    } else {
-                        nodeList = currentNode.getChildNodes();
-                        i = -1;
-                    }
-                }
-            }
-            polygon.appendChild(importNode);
-            importNode = polygon;
-        }
-
-        memberType.appendChild(importNode);
-        multiGeom.appendChild(memberType);
-        return multiGeom;
     }
 }
