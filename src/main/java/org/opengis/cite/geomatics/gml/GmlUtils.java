@@ -14,6 +14,9 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
@@ -40,7 +43,9 @@ import org.opengis.temporal.Instant;
 import org.opengis.temporal.TemporalFactory;
 import org.opengis.temporal.TemporalGeometricPrimitive;
 import org.opengis.util.FactoryException;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -514,5 +519,65 @@ public class GmlUtils {
             timePrimitive = tmFactory.createPeriod(beginInstant, endInstant);
         }
         return timePrimitive;
+    }
+
+    /**
+     * Convert Surface or Curve geometry to MultiSurface or MultiCurve.
+     * 
+     * @param geomNode
+     *            Element with Surface/Curve details.
+     * 
+     * @return {@link Element} Returns converted element to Multi geometry type.
+     */
+    public static Element convertToMultiType(Node geomNode) {
+        String typeName = "Multi" + geomNode.getLocalName();
+        String geomMemberType = geomNode.getLocalName().equalsIgnoreCase("Curve") ? "curveMember" : "surfaceMember";
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = null;
+
+        try {
+            db = dbf.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        Document document = db.newDocument();
+        Element multiGeom = document.createElementNS(geomNode.getNamespaceURI(), typeName);
+        Element memberType = document.createElementNS(geomNode.getNamespaceURI(), geomMemberType);
+        Node importNode = document.importNode(geomNode, true);
+        NamedNodeMap attributes = geomNode.getAttributes();
+
+        for (Integer i = 0; i < attributes.getLength(); i++) {
+            String attributeNamespace = attributes.item(i).getNamespaceURI();
+            String attributeName = attributes.item(i).getLocalName();
+            String attributeValue = attributes.item(i).getNodeValue();
+
+            multiGeom.setAttributeNS(attributeNamespace, attributeName, attributeValue);
+        }
+
+        // In case of Surface geometry type
+        if (typeName.equalsIgnoreCase("MultiSurface")) {
+            Element polygon = document.createElementNS(geomNode.getNamespaceURI(), "Polygon");
+
+            NodeList nodeList = importNode.getChildNodes();
+            for (Integer i = 0; i < nodeList.getLength(); i++) {
+                Node currentNode = nodeList.item(i);
+                if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
+                    if (currentNode.getLocalName().equalsIgnoreCase("exterior")) {
+                        importNode = currentNode;
+                        break;
+                    } else {
+                        nodeList = currentNode.getChildNodes();
+                        i = -1;
+                    }
+                }
+            }
+            polygon.appendChild(importNode);
+            importNode = polygon;
+        }
+
+        memberType.appendChild(importNode);
+        multiGeom.appendChild(memberType);
+        return multiGeom;
     }
 }

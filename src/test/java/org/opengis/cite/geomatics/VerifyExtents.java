@@ -116,6 +116,36 @@ public class VerifyExtents extends CommonTestFixture {
     }
 
     @Test
+    public void getExtentOfCurveGeometry() throws SAXException, IOException, XPathExpressionException, JAXBException {
+        Document multiGeom = docBuilder.parse(this.getClass().getResourceAsStream("/gml/CurveGeometry.xml"));
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        xpath.setNamespaceContext(new GmlUtils.NodeNamespaceContext(multiGeom));
+        NodeList nodes = (NodeList) xpath.evaluate("//gml:geometryMember/*", multiGeom, XPathConstants.NODESET);
+        Envelope envelope = Extents.calculateEnvelope(nodes);
+        assertNotNull("Envelope is null.", envelope);
+        assertTrue("Expected CRS 'WGS 84'.",
+                envelope.getCoordinateReferenceSystem().getName().getCode().contains("WGS 84"));
+        DirectPosition upperCorner = envelope.getUpperCorner();
+        assertEquals("Unexpected ordinate[0] for upper corner.", 49.281191, upperCorner.getOrdinate(0), 0.005);
+        assertEquals("Unexpected ordinate[1] for upper corner.", -123.116355, upperCorner.getOrdinate(1), 0.005);
+    }
+
+    @Test
+    public void getExtentOfSurfaceGeometry() throws SAXException, IOException, XPathExpressionException, JAXBException {
+        Document multiGeom = docBuilder.parse(this.getClass().getResourceAsStream("/gml/SurfaceGeometry.xml"));
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        xpath.setNamespaceContext(new GmlUtils.NodeNamespaceContext(multiGeom));
+        NodeList nodes = (NodeList) xpath.evaluate("//gml:geometryMember/*", multiGeom, XPathConstants.NODESET);
+        Envelope envelope = Extents.calculateEnvelope(nodes);
+        assertNotNull("Envelope is null.", envelope);
+        assertTrue("Expected CRS 'ETRS89'.",
+                envelope.getCoordinateReferenceSystem().getName().getCode().contains("ETRS89"));
+        DirectPosition upperCorner = envelope.getUpperCorner();
+        assertEquals("Unexpected ordinate[0] for upper corner.", 52.273881, upperCorner.getOrdinate(0), 0.005);
+        assertEquals("Unexpected ordinate[1] for upper corner.", 6.934301, upperCorner.getOrdinate(1), 0.005);
+    }
+
+    @Test
     public void totalExtentOfDisjointBoxes_sameCRS()
             throws SAXException, IOException, XPathExpressionException, FactoryException, TransformException {
         Document results = docBuilder.parse(this.getClass().getResourceAsStream("/SearchResults.xml"));

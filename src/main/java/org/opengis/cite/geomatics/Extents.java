@@ -87,6 +87,12 @@ public class Extents {
                 // explicitly set srsName on all members of geometry collection
                 GmlUtils.setSrsNameOnCollectionMembers(geom);
             }
+
+            // Convert to MultiCurve or MultiSurface from Curve or Surface node resp.
+            // As geotoolkit(3.21) is not supporting Curve and Surface geometry type.
+            if (geom.getLocalName().equals("Curve") || geom.getLocalName().equals("Surface")) {
+                geom = GmlUtils.convertToMultiType(geomNodes.item(i));
+            }
             JAXBElement<AbstractGeometry> result = (JAXBElement<AbstractGeometry>) unmarshaller.unmarshal(geom);
             AbstractGeometry gmlGeom = result.getValue();
             String srsName = gmlGeom.getSrsName();
