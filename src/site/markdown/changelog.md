@@ -1,10 +1,11 @@
 ﻿# Release Notes
 
-## 1.15 (2016-MM-DD)
-This maintenance release includes the following changes:
+## 1.15 (2020-10-16)
 
+* [#3](https://github.com/opengeospatial/geomatics-geotk/issues/3): Add support for GML geometry types - Curve and Surface
+* [#2](https://github.com/opengeospatial/geomatics-geotk/pull/2): Added new method transformRingToRightHandedCSKeepAllCoords.
+* [#5](https://github.com/opengeospatial/geomatics-geotk/pull/5): Bump junit from 4.12 to 4.13.1
 * GeodesyUtils::removeConsecutiveDuplicates: Change data type of tolerancePPM parameter to double
-
 
 ## 1.14 (2016-11-16)
 This maintenance release includes the following changes:
