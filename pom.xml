@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opengis.cite</groupId>
   <artifactId>geomatics-geotk</artifactId>
-  <version>1.15</version>
+  <version>1.16-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Geomatics Utilities (Geotk v3)</name>
   <description>
@@ -26,7 +26,7 @@
     <connection>scm:git:https://github.com/opengeospatial/geomatics-geotk.git</connection>
     <developerConnection>scm:git:git@github.com:opengeospatial/geomatics-geotk.git</developerConnection>
     <url>https://github.com/opengeospatial/geomatics-geotk</url>
-    <tag>1.15</tag>
+    <tag>HEAD</tag>
   </scm>
   <issueManagement>
     <system>GitHub Issue Tracker</system>
