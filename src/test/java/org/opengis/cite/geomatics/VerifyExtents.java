@@ -127,7 +127,7 @@ public class VerifyExtents extends CommonTestFixture {
                 envelope.getCoordinateReferenceSystem().getName().getCode().contains("WGS 84"));
         DirectPosition upperCorner = envelope.getUpperCorner();
         assertEquals("Unexpected ordinate[0] for upper corner.", 49.281191, upperCorner.getOrdinate(0), 0.005);
-        assertEquals("Unexpected ordinate[1] for upper corner.", -123.116355, upperCorner.getOrdinate(1), 0.005);
+        assertEquals("Unexpected ordinate[1] for upper corner.", -123.125993, upperCorner.getOrdinate(1), 0.005);
     }
 
     @Test

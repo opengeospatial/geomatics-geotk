@@ -546,6 +546,7 @@ public class GmlUtils {
         Element memberType = document.createElementNS(geomNode.getNamespaceURI(), geomMemberType);
         Node importNode = document.importNode(geomNode, true);
         NamedNodeMap attributes = geomNode.getAttributes();
+        String srsName = null;
 
         for (Integer i = 0; i < attributes.getLength(); i++) {
             String attributeNamespace = attributes.item(i).getNamespaceURI();
@@ -553,30 +554,40 @@ public class GmlUtils {
             String attributeValue = attributes.item(i).getNodeValue();
 
             multiGeom.setAttributeNS(attributeNamespace, attributeName, attributeValue);
+            if (attributeName.equalsIgnoreCase("srsName")) {
+                srsName = GeodesyUtils.convertSRSNameToURN(attributeValue);
+            }
         }
 
-        // In case of Surface geometry type
-        if (typeName.equalsIgnoreCase("MultiSurface")) {
-            Element polygon = document.createElementNS(geomNode.getNamespaceURI(), "Polygon");
+        Element newGeomNode = null;
+        if (typeName.equalsIgnoreCase("MultiCurve")) {
+            newGeomNode = document.createElementNS(geomNode.getNamespaceURI(), "LineString");
+        } else {
+            newGeomNode = document.createElementNS(geomNode.getNamespaceURI(), "Polygon");
+        }
+        newGeomNode.setAttribute("srsName", srsName);
 
-            NodeList nodeList = importNode.getChildNodes();
-            for (Integer i = 0; i < nodeList.getLength(); i++) {
-                Node currentNode = nodeList.item(i);
-                if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
+        NodeList nodeList = importNode.getChildNodes();
+        for (Integer i = 0; i < nodeList.getLength(); i++) {
+            Node currentNode = nodeList.item(i);
+            if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
+                if (typeName.equalsIgnoreCase("MultiCurve")) {
+                    if (currentNode.getLocalName().equalsIgnoreCase("posList")) {
+                        importNode = currentNode;
+                        break;
+                    }
+                } else {
                     if (currentNode.getLocalName().equalsIgnoreCase("exterior")) {
                         importNode = currentNode;
                         break;
-                    } else {
-                        nodeList = currentNode.getChildNodes();
-                        i = -1;
                     }
                 }
+                nodeList = currentNode.getChildNodes();
+                i = -1;
             }
-            polygon.appendChild(importNode);
-            importNode = polygon;
         }
-
-        memberType.appendChild(importNode);
+        newGeomNode.appendChild(importNode);
+        memberType.appendChild(newGeomNode);
         multiGeom.appendChild(memberType);
         return multiGeom;
     }
