@@ -111,8 +111,8 @@ public class VerifyExtents extends CommonTestFixture {
         assertTrue("Expected CRS 'WGS 84'.",
                 envelope.getCoordinateReferenceSystem().getName().getCode().contains("WGS 84"));
         DirectPosition upperCorner = envelope.getUpperCorner();
-        assertEquals("Unexpected ordinate[0] for upper corner.", 50.55, upperCorner.getOrdinate(0), 0.005);
-        assertEquals("Unexpected ordinate[1] for upper corner.", -122.22, upperCorner.getOrdinate(1), 0.005);
+        assertEquals("Unexpected ordinate[0] for upper corner.", 50.0, upperCorner.getOrdinate(0), 0.005);
+        assertEquals("Unexpected ordinate[1] for upper corner.", -122.5, upperCorner.getOrdinate(1), 0.005);
     }
 
     @Test
@@ -252,7 +252,7 @@ public class VerifyExtents extends CommonTestFixture {
                 envelope.getCoordinateReferenceSystem().getName().getCode().contains("WGS 84"));
         DirectPosition upperCorner = envelope.getUpperCorner();
         assertEquals("Unexpected ordinate[0] for upper corner.", 51.92, upperCorner.getOrdinate(0), 0.005);
-        assertEquals("Unexpected ordinate[1] for upper corner.", 9.70, upperCorner.getOrdinate(1), 0.005);
+        assertEquals("Unexpected ordinate[1] for upper corner.", 8.541, upperCorner.getOrdinate(1), 0.005);
     }
 
     @Test

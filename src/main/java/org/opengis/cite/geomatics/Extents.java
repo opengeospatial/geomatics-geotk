@@ -77,7 +77,8 @@ public class Extents {
         }
         com.vividsolutions.jts.geom.Envelope envelope = new com.vividsolutions.jts.geom.Envelope();
         CoordinateReferenceSystem crs = null;
-        for (int i = 0; i < geomNodes.getLength(); i++) {
+        // Iteration reduce to 1 from geomNodes.getLength() - Reference issue 8
+        for (int i = 0; i < 1; i++) {
             Element geom = (Element) geomNodes.item(i);
             if (geom.getAttribute("srsName").isEmpty()) {
                 // check ancestor nodes for CRS reference
