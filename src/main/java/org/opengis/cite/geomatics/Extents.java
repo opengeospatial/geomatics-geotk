@@ -113,6 +113,65 @@ public class Extents {
         }
         return new JTSEnvelope2D(envelope, crs);
     }
+    
+    /**
+     * Calculates the envelope using single GML geometry element.
+     * 
+     * @param geomNodes
+     *            A NodeList containing GML geometry elements; it is assumed
+     *            these all refer to the same CRS.
+     * @return An Envelope object representing the overall spatial extent (MBR)
+     *         of the geometries.
+     * @throws JAXBException
+     *             If a node cannot be unmarshalled to a geometry object.
+     */
+    @SuppressWarnings("unchecked")
+    public static Envelope calculateEnvelopeUsingSingleGeometry(NodeList geomNodes) throws JAXBException {
+        Unmarshaller unmarshaller = null;
+        try {
+            MarshallerPool pool = new MarshallerPool("org.geotoolkit.gml.xml.v321");
+            unmarshaller = pool.acquireUnmarshaller();
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+        com.vividsolutions.jts.geom.Envelope envelope = new com.vividsolutions.jts.geom.Envelope();
+        CoordinateReferenceSystem crs = null;
+        for (int i = 0; i < 1; i++) {
+            Element geom = (Element) geomNodes.item(i);
+            if (geom.getAttribute("srsName").isEmpty()) {
+                // check ancestor nodes for CRS reference
+                GmlUtils.findCRSReference(geom);
+            }
+            if (geom.getLocalName().startsWith("Multi")) {
+                // explicitly set srsName on all members of geometry collection
+                GmlUtils.setSrsNameOnCollectionMembers(geom);
+            }
+
+            // Convert to MultiCurve or MultiSurface from Curve or Surface node resp.
+            // As geotoolkit(3.21) is not supporting Curve and Surface geometry type.
+            if (geom.getLocalName().equals("Curve") || geom.getLocalName().equals("Surface")) {
+                geom = GmlUtils.convertToMultiType(geomNodes.item(i));
+            }
+            JAXBElement<AbstractGeometry> result = (JAXBElement<AbstractGeometry>) unmarshaller.unmarshal(geom);
+            AbstractGeometry gmlGeom = result.getValue();
+            String srsName = gmlGeom.getSrsName();
+            if (srsName.startsWith("http")) {
+                // not recognized in Geotk v3
+                gmlGeom.setSrsName(GeodesyUtils.convertSRSNameToURN(srsName));
+            }
+            crs = gmlGeom.getCoordinateReferenceSystem();
+            Geometry jtsGeom;
+            try {
+                jtsGeom = GeometrytoJTS.toJTS(gmlGeom);
+            } catch (FactoryException e) {
+                throw new RuntimeException(
+                        String.format("Failed to create JTS geometry from GML geometry: %s \nCause: %s",
+                                gmlGeom.toString(), e.getMessage()));
+            }
+            envelope.expandToInclude(jtsGeom.getEnvelopeInternal());
+        }
+        return new JTSEnvelope2D(envelope, crs);
+    }
 
     /**
      * Generates a standard GML representation (gml:Envelope) of an Envelope
