@@ -1,5 +1,10 @@
 ﻿# Release Notes
 
+## 1.16 (2021-10-29)
+
+* [#8](https://github.com/opengeospatial/geomatics-geotk/issues/8): Calculate envelope using single geometry
+* [#6](https://github.com/opengeospatial/geomatics-geotk/issues/6): Add support for Curve geometry with srsName in HTTP URI format
+
 ## 1.15 (2020-10-16)
 
 * [#3](https://github.com/opengeospatial/geomatics-geotk/issues/3): Add support for GML geometry types - Curve and Surface
