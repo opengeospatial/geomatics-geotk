@@ -31,6 +31,7 @@ import org.opengis.referencing.operation.TransformException;
 import org.opengis.util.FactoryException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -151,6 +152,11 @@ public class Extents {
             // As geotoolkit(3.21) is not supporting Curve and Surface geometry type.
             if (geom.getLocalName().equals("Curve") || geom.getLocalName().equals("Surface")) {
                 geom = GmlUtils.convertToMultiType(geomNodes.item(i));
+            }
+            
+            Node geomNode = geomNodes.item(i);
+            if (GmlUtils.checkForAbstractSurfacePatchTypes(geomNode)) {
+                geom = GmlUtils.handleAbstractSurfacePatch(geomNode);
             }
             JAXBElement<AbstractGeometry> result = (JAXBElement<AbstractGeometry>) unmarshaller.unmarshal(geom);
             AbstractGeometry gmlGeom = result.getValue();

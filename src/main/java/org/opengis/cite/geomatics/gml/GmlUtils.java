@@ -531,6 +531,40 @@ public class GmlUtils {
      */
     public static Element convertToMultiType(Node geomNode) {
         String typeName = "Multi" + geomNode.getLocalName();
+        return convertGeomNode(typeName, geomNode);
+    }
+
+    /**
+     * Rewrites a geometry Node that contain AbstractSurfacePatch elements. 
+     * See https://github.com/opengeospatial/ets-wfs20/issues/260
+     * 
+     * @param geomNode a geometry Node containing AbstractSurfacePatch elements.
+     * @return The rewritten geometry Node.
+     */
+    public static Element handleAbstractSurfacePatch(Node geomNode) {
+        String typeName = geomNode.getLocalName();
+        return convertGeomNode(typeName, geomNode);
+    }
+
+    /**
+     * Checks for <code>AbstractSurfacePatchTypes</code> in geometry nodes
+     * 
+     * @param node The geometry node
+     * @return true, if the geometry node contains a <code>AbstractSurfacePatchTypes</code>, otherwise false
+     */
+    public static boolean checkForAbstractSurfacePatchTypes(Node node) {
+        boolean result = false;
+        if (node.getLocalName().contains("Multi")) {
+            NodeList childNodes = node.getChildNodes();
+            for (int i = 0; i < childNodes.getLength(); i++) {
+                Node childNode = childNodes.item(i);
+                result = result || checkForAbstractSurfacePatchTypesRecursively(childNode);
+            }
+        }
+        return result;
+    }
+    
+    private static Element convertGeomNode(String typeName, Node geomNode) {
         String geomMemberType = geomNode.getLocalName().equalsIgnoreCase("Curve") ? "curveMember" : "surfaceMember";
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = null;
@@ -590,5 +624,24 @@ public class GmlUtils {
         memberType.appendChild(newGeomNode);
         multiGeom.appendChild(memberType);
         return multiGeom;
+    }
+
+    private static boolean checkForAbstractSurfacePatchTypesRecursively(Node node) {
+        boolean result = false;
+        if (node.getNodeType() == Node.TEXT_NODE) {
+            return false;
+        }
+        if (node.getLocalName().contains("patch")) {
+            return true;
+        }
+        if (!node.hasChildNodes()) {
+            return false;
+        }
+        NodeList childNodes = node.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node childNode = childNodes.item(i);
+            result = result || checkForAbstractSurfacePatchTypesRecursively(childNode);
+        }
+        return result;
     }
 }
