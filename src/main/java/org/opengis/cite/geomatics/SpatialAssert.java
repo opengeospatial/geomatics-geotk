@@ -3,8 +3,9 @@ package org.opengis.cite.geomatics;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotoolkit.geometry.Envelopes;
-import org.geotoolkit.geometry.GeneralEnvelope;
+import org.apache.sis.geometry.Envelopes;
+import org.apache.sis.geometry.GeneralEnvelope;
+
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
@@ -13,7 +14,7 @@ import org.opengis.referencing.operation.TransformException;
  * Provides specialized assertion methods that apply to representations of
  * spatial objects. Many of these are concerned with evaluating topological
  * relationships between geometry objects.
- * 
+ *
  * @see "ISO 19125-1: Geographic information -- Simple feature access -- Part 1: Common architecture"
  */
 public class SpatialAssert {
@@ -25,16 +26,16 @@ public class SpatialAssert {
 	 * Asserts that the given envelopes intersect. The coordinate reference
 	 * systems used by the envelopes do not have to be the same; a coordinate
 	 * transformation will be attempted if necessary.
-	 * 
+	 *
 	 * More specifically, this method asserts that the envelopes are not
 	 * disjoint.
-	 * 
+	 *
 	 * <pre>
 	 * {@literal
 	 * a.Intersects(b) <--> ! a.Disjoint(b)
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @param env1
 	 *            An Envelope representing a spatial extent.
 	 * @param env2

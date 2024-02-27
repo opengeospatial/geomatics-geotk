@@ -43,7 +43,20 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
-    <geotk.version>3.21</geotk.version>
+    <!--
+      The Geotk version declared below is a milestone deployed on a third-party repository.
+      It brings unofficial milestones of Apache SIS and GeoAPI as transitive dependencies.
+      They are not official releases and are not deployed on Maven central because they use
+      a milestone of the OGC GeoAPI 4 development branch, which can cause conflicts against
+      projects using the approved OGC standard. This is a hopefully temporary situation until
+      GeoAPI 3.1 or 4.0 is approved by OGC. The conflicts will not happen if OGC TEAM engine
+      is not used as a library for building third-party applications.
+
+      The Apache SIS milestone version is inherited by Geotk transitive dependencies.
+      The non-free version is for EPSG data, which are distributed under their own licensing terms.
+    -->
+    <geotk.version>23.09.18</geotk.version>
+    <sis.non-free.version>1.4</sis.non-free.version>
   </properties>
 
   <build>
@@ -51,7 +64,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.19.1</version>
+        <version>3.2.5</version>
         <configuration>
           <!-- Disable TestNG runner (enabled due to compile dependency) -->
           <testNGArtifactName>null:null</testNGArtifactName>
@@ -61,18 +74,19 @@
             <include>**/*Tests.java</include>
             <include>**/*Test.java</include>
           </includes>
+          <trimStackTrace>false</trimStackTrace>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.4</version>
+        <version>3.6.3</version>
         <configuration>
           <docfilessubdirs>true</docfilessubdirs>
           <show>package</show>
           <links>
             <link>http://www.geoapi.org/3.0/javadoc/</link>
-            <link>http://tsusiatsoftware.net/jts/javadoc/</link>
+            <link>https://locationtech.github.io/jts/javadoc/</link>
           </links>
         </configuration>
         <executions>
@@ -87,7 +101,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.5.1</version>
+        <version>3.12.1</version>
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
@@ -96,7 +110,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.0.2</version>
+        <version>3.3.0</version>
         <configuration>
           <archive>
             <manifest>
@@ -112,7 +126,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.6</version>
+        <version>3.6.0</version>
         <configuration>
           <descriptors>
             <descriptor>${basedir}/src/assembly/with-deps.xml</descriptor>
@@ -129,7 +143,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-release-plugin</artifactId>
-        <version>2.5.3</version>
+        <version>3.0.1</version>
         <configuration>
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <tagNameFormat>@{project.version}</tagNameFormat>
@@ -139,7 +153,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <version>3.5.1</version>
+        <version>3.12.1</version>
         <executions>
           <execution>
             <id>site-package</id>
@@ -153,7 +167,7 @@
           <dependency>
             <groupId>org.apache.maven.doxia</groupId>
             <artifactId>doxia-module-markdown</artifactId>
-            <version>1.7</version>
+            <version>1.12.0</version>
           </dependency>
         </dependencies>
         <configuration>
@@ -164,7 +178,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
-        <version>1.4</version>
+        <version>3.2.0</version>
         <executions>
           <execution>
             <phase>validate</phase>
@@ -181,7 +195,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-scm-publish-plugin</artifactId>
-        <version>1.1</version>
+        <version>3.2.1</version>
         <configuration>
           <scmBranch>gh-pages</scmBranch>
         </configuration>
@@ -191,42 +205,49 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.geotoolkit.pending</groupId>
+      <groupId>org.geotoolkit</groupId>
       <artifactId>geotk-xml-gml</artifactId>
       <version>${geotk.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.geotoolkit.pending</groupId>
+      <groupId>org.geotoolkit</groupId>
       <artifactId>geotk-jtswrapper</artifactId>
       <version>${geotk.version}</version>
+    </dependency>
+    <!--
+      The JTS dependency is inherited from `geotk-jtswrapper` and is
+      not repeated here for making sure that the same version is used.
+    -->
+    <dependency>
+      <groupId>org.apache.sis.non-free</groupId>
+      <artifactId>sis-embedded-data</artifactId>
+      <version>${sis.non-free.version}</version>
+      <scope>runtime</scope>
       <exclusions>
         <exclusion>
-          <groupId>com.vividsolutions</groupId>
-          <artifactId>jts</artifactId>
+          <!-- Excluded because this dependency is a different version. -->
+          <groupId>org.apache.sis.core</groupId>
+          <artifactId>sis-referencing</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
+    <!--
+      Woodstox (or an equivalent alternative) is needed for unmarshalling
+      XML documents from `org.w3c.dom.Node`. This dependency is detected
+      automatically by JAXB at runtime and resolves the following error:
+
+      Cannot create XMLStreamReader or XMLEventReader from a javax.xml.transform.dom.DOMSource
+     -->
     <dependency>
-      <groupId>com.vividsolutions</groupId>
-      <artifactId>jts</artifactId>
-      <version>1.13</version>
-    </dependency>
-    <dependency>
-      <groupId>org.geotoolkit</groupId>
-      <artifactId>geotk-epsg</artifactId>
-      <version>${geotk.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.derby</groupId>
-      <artifactId>derby</artifactId>
-      <version>10.10.2.0</version>
+      <groupId>com.fasterxml.woodstox</groupId>
+      <artifactId>woodstox-core</artifactId>
+      <version>6.6.1</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.13.1</version>
+      <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -249,7 +270,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.4</version>
+        <version>3.6.3</version>
         <reportSets>
           <reportSet>
             <id>default</id>
@@ -258,7 +279,7 @@
               <show>package</show>
               <links>
                 <link>http://www.geoapi.org/3.0/javadoc/</link>
-                <link>http://tsusiatsoftware.net/jts/javadoc/</link>
+                <link>https://locationtech.github.io/jts/javadoc/</link>
               </links>
             </configuration>
             <reports>
@@ -295,7 +316,7 @@
         <plugins>
           <plugin>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.6</version>
+            <version>3.1.0</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
@@ -319,11 +340,11 @@
   </profiles>
 
   <repositories>
-    <!-- Geotk 3.21 not available in Central repository -->
+    <!-- Geotk milestones are not deployed in Central repository. -->
     <repository>
       <id>geotoolkit</id>
       <name>Geotk Modules</name>
-      <url>http://maven.geotoolkit.org/</url>
+      <url>https://nexus.geomatys.com/repository/maven-public</url>
       <layout>default</layout>
     </repository>
   </repositories>

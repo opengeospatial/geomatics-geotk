@@ -7,7 +7,7 @@ import org.geotoolkit.gml.xml.v321.AbstractCurveType;
 import org.geotoolkit.gml.xml.v321.AbstractSurfaceType;
 import org.geotoolkit.gml.xml.v321.PointType;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 /**
  * Constructs an array of points from a GML geometry instance. Such a sequence
