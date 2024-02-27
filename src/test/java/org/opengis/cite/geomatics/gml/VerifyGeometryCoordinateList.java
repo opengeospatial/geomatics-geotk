@@ -3,19 +3,19 @@ package org.opengis.cite.geomatics.gml;
 import static org.junit.Assert.*;
 
 import java.net.URL;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 
 import org.geotoolkit.gml.xml.v321.CurveType;
-import org.geotoolkit.xml.MarshallerPool;
+import org.apache.sis.xml.MarshallerPool;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.opengis.cite.geomatics.gml.GeometryCoordinateList;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 public class VerifyGeometryCoordinateList {
 
@@ -23,7 +23,7 @@ public class VerifyGeometryCoordinateList {
 
     @BeforeClass
     public static void initFixture() throws Exception {
-        MarshallerPool pool = new MarshallerPool("org.geotoolkit.gml.xml.v321");
+        MarshallerPool pool = org.geotoolkit.gml.xml.GMLMarshallerPool.getInstance();
         gmlUnmarshaller = pool.acquireUnmarshaller();
     }
 

@@ -11,16 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.geotoolkit.geometry.Envelopes;
-import org.geotoolkit.geometry.GeneralEnvelope;
-import org.geotoolkit.referencing.CRS;
-import org.geotoolkit.referencing.crs.DefaultGeographicCRS;
+import org.apache.sis.geometry.GeneralEnvelope;
+import org.apache.sis.referencing.CRS;
+import org.apache.sis.referencing.CommonCRS;
 import org.hamcrest.core.StringContains;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,7 +36,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Polygon;
 
 public class VerifyExtents extends CommonTestFixture {
 
@@ -48,7 +47,7 @@ public class VerifyExtents extends CommonTestFixture {
 
     @Test
     public void getEnvelopeAsGML_epsg4326() throws FactoryException {
-        GeneralEnvelope envelope = new GeneralEnvelope(CRS.decode("EPSG:4326"));
+        GeneralEnvelope envelope = new GeneralEnvelope(CRS.forCode("EPSG:4326"));
         envelope.setEnvelope(49.05478, -123.49675, 50.78534, -122.88663);
         Document gmlEnv = Extents.envelopeAsGML(envelope);
         Element docElem = gmlEnv.getDocumentElement();
@@ -63,7 +62,7 @@ public class VerifyExtents extends CommonTestFixture {
     public void getEnvelopeAsGMLInOtherLocale() throws FactoryException {
         Locale defaultLocale = Locale.getDefault();
         Locale.setDefault(Locale.GERMANY);
-        GeneralEnvelope envelope = new GeneralEnvelope(CRS.decode("EPSG:4326"));
+        GeneralEnvelope envelope = new GeneralEnvelope(CRS.forCode("EPSG:4326"));
         envelope.setEnvelope(49.05478, -123.49675, 50.78534, -122.88663);
         Document gmlEnv = Extents.envelopeAsGML(envelope);
         Locale.setDefault(defaultLocale);
@@ -77,8 +76,8 @@ public class VerifyExtents extends CommonTestFixture {
 
     @Test
     public void getEnvelopeAsGML_epsg32610() throws FactoryException {
-        CoordinateReferenceSystem epsg32610 = CRS.decode("EPSG:32610");
-        Envelope areaOfUse = Envelopes.getDomainOfValidity(epsg32610);
+        CoordinateReferenceSystem epsg32610 = CRS.forCode("EPSG:32610");
+        Envelope areaOfUse = CRS.getDomainOfValidity(epsg32610);
         GeneralEnvelope envelope = new GeneralEnvelope(areaOfUse);
         Document gmlEnv = Extents.envelopeAsGML(envelope);
         Element docElem = gmlEnv.getDocumentElement();
@@ -91,8 +90,8 @@ public class VerifyExtents extends CommonTestFixture {
 
     @Test
     public void getEnvelopeAsPolygon_epsg32610() throws FactoryException {
-        CoordinateReferenceSystem epsg32610 = CRS.decode("EPSG:32610");
-        Envelope areaOfUse = Envelopes.getDomainOfValidity(epsg32610);
+        CoordinateReferenceSystem epsg32610 = CRS.forCode("EPSG:32610");
+        Envelope areaOfUse = CRS.getDomainOfValidity(epsg32610);
         GeneralEnvelope envelope = new GeneralEnvelope(areaOfUse);
         Polygon polygon = Extents.envelopeAsPolygon(envelope);
         assertEquals("Polygon has unexpected CRS as user data.", polygon.getUserData(), epsg32610);
@@ -195,7 +194,7 @@ public class VerifyExtents extends CommonTestFixture {
                 lowerCorner.getCoordinate(), 0.1);
         assertNotNull("CRS is null.", envelope.getCoordinateReferenceSystem());
         assertThat("Unexpected CRS.", envelope.getCoordinateReferenceSystem().getIdentifiers().toString(),
-                StringContains.containsString("EPSG:4326"));
+                StringContains.containsString("\"EPSG\", 4326"));
     }
 
     @Test
@@ -208,7 +207,7 @@ public class VerifyExtents extends CommonTestFixture {
                 lowerCorner.getCoordinate(), 0.1);
         assertNotNull("CRS is null.", envelope.getCoordinateReferenceSystem());
         assertThat("Unexpected CRS.", envelope.getCoordinateReferenceSystem().getIdentifiers().toString(),
-                StringContains.containsString("EPSG:32610"));
+                StringContains.containsString("\"EPSG\", 32610"));
     }
 
     @Test
@@ -221,12 +220,12 @@ public class VerifyExtents extends CommonTestFixture {
                 upperCorner.getCoordinate(), 0.1);
         assertNotNull("CRS is null.", envelope.getCoordinateReferenceSystem());
         assertThat("Unexpected CRS.", envelope.getCoordinateReferenceSystem().getName().toString(),
-                StringContains.containsString("WGS84"));
+                StringContains.containsString("WGS 84"));
     }
 
     @Test
     public void writeWGS84BoundingBoxToString() {
-        GeneralEnvelope envelope = new GeneralEnvelope(DefaultGeographicCRS.WGS84);
+        GeneralEnvelope envelope = new GeneralEnvelope(CommonCRS.defaultGeographic());
         envelope.setEnvelope(new double[] { -116.0, 32.6, -115.0, 34.0 });
         String kvp = Extents.envelopeToString(envelope);
         assertEquals(kvp, "-116.0,32.6,-115.0,34.0");
@@ -234,7 +233,7 @@ public class VerifyExtents extends CommonTestFixture {
 
     @Test
     public void writeEPSG4326BoundingBoxToString() throws FactoryException {
-        GeneralEnvelope envelope = new GeneralEnvelope(CRS.decode("EPSG:4326"));
+        GeneralEnvelope envelope = new GeneralEnvelope(CRS.forCode("EPSG:4326"));
         envelope.setEnvelope(new double[] { 32.0, -117.6, 33.5, -116.2 });
         String kvp = Extents.envelopeToString(envelope);
         assertEquals(kvp, "32.0,-117.6,33.5,-116.2,urn:ogc:def:crs:EPSG::4326");

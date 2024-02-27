@@ -1,19 +1,21 @@
 package org.opengis.cite.geomatics;
 
 import java.util.logging.Logger;
-
-import javax.measure.converter.UnitConverter;
-import javax.measure.quantity.Length;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
-import javax.xml.bind.JAXBException;
 import javax.xml.transform.dom.DOMSource;
+import jakarta.xml.bind.JAXBException;
+
+import javax.measure.Unit;
+import javax.measure.UnitConverter;
+import javax.measure.quantity.Length;
+
+import org.apache.sis.measure.Units;
+import org.apache.sis.referencing.CRS;
 
 import org.geotoolkit.geometry.jts.JTS;
 import org.geotoolkit.gml.GeometrytoJTS;
 import org.geotoolkit.gml.xml.AbstractGeometry;
 import org.geotoolkit.gml.xml.Curve;
-import org.geotoolkit.referencing.CRS;
+
 import org.opengis.cite.geomatics.gml.GmlUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -22,19 +24,19 @@ import org.opengis.util.FactoryException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.operation.distance.DistanceOp;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.operation.distance.DistanceOp;
 
 /**
  * Provides methods to test for the existence of a specified spatial
  * relationship between two geometric objects.
- * 
+ *
  * @see <a target="_blank" href=
  *      "http://portal.opengeospatial.org/files/?artifact_id=25355">OpenGIS
  *      Implementation Specification for Geographic information - Simple feature
  *      access - Part 1: Common architecture</a>
- * 
+ *
  */
 public class TopologicalRelationships {
 
@@ -99,11 +101,11 @@ public class TopologicalRelationships {
     /**
      * Tests whether or not the minimum (orthodromic) distance between two
      * geometry objects is less than the specified distance. That is,
-     * 
+     *
      * <pre>
      * DWithin(A,B,d) &#8660; Distance(A,B) &lt; d
      * </pre>
-     * 
+     *
      * <p>
      * The computed distance is the shortest distance between the two nearest
      * points in the geometry instances, as measured along the surface of an
@@ -171,21 +173,24 @@ public class TopologicalRelationships {
         Unit<Length> uom = null;
         if (uomId.contains(":")) {
             // absolute URI is currently ignored
+        } else if (uomId.equals("[nmi_i]")) {
+            // TODO: maybe we should add more UCUM codes here.
+            uom = Units.NAUTICAL_MILE;
         } else {
-            uom = (Unit<Length>) Unit.valueOf(uomId);
+            uom = Units.valueOf(uomId).asType(Length.class);
         }
-        UnitConverter converter = uom.getConverterTo(SI.METRE);
+        UnitConverter converter = uom.getConverterTo(Units.METRE);
         return orthodromicDist < converter.convert(maxDistance);
     }
 
     /**
      * Tests whether or not the orthodromic distance between two geometry
      * objects is greater than or equal to the specified distance. That is,
-     * 
+     *
      * <pre>
      * Beyond(A,B,d) &#8660; Distance(A,B) &gt;= d
      * </pre>
-     * 
+     *
      * @param g1
      *            An Element node representing a GML geometry instance.
      * @param g2
@@ -200,9 +205,9 @@ public class TopologicalRelationships {
     }
 
     /**
-     * 
+     *
      * Builds a JTS geometry object from a GML geometry object.
-     * 
+     *
      * @param gmlGeom
      *            A GML geometry.
      * @return A JTS geometry, or null if one could not be constructed.
@@ -225,7 +230,7 @@ public class TopologicalRelationships {
 
     /**
      * Creates a GML geometry object from a DOM node.
-     * 
+     *
      * @param geomNode
      *            A node representing a GML geometry instance.
      * @return A geometry object.
@@ -254,7 +259,7 @@ public class TopologicalRelationships {
     /**
      * Checks that the given geometry object uses the specified CRS. If this is
      * not the case, an attempt is made to change it.
-     * 
+     *
      * @param g1
      *            A JTS geometry object.
      * @param crs
@@ -273,8 +278,8 @@ public class TopologicalRelationships {
         Geometry g2 = null;
         if (!crs1.getName().equals(crs.getName())) {
             LOGR.fine(String.format("Attempting to change CRS %s to %s", crs1.getName(), crs.getName()));
-            MathTransform transform = CRS.findMathTransform(crs1, crs);
-            g2 = JTS.transform(g1, transform);
+            MathTransform transform = CRS.findOperation(crs1, crs, null).getMathTransform();
+            g2 = org.apache.sis.internal.feature.jts.JTS.transform(g1, transform);
             JTS.setCRS(g2, crs);
         }
         return (null != g2) ? g2 : g1;

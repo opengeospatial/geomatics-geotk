@@ -9,7 +9,7 @@ import java.util.List;
 import org.geotoolkit.gml.xml.AbstractGeometry;
 import org.geotoolkit.gml.xml.Point;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 /**
  * Creates a sequence containing a single coordinate tuple denoting the position

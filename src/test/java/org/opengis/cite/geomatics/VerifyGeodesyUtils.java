@@ -6,19 +6,19 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.geotoolkit.geometry.GeneralDirectPosition;
-import org.geotoolkit.geometry.ImmutableEnvelope;
+import org.apache.sis.geometry.GeneralDirectPosition;
+import org.apache.sis.geometry.ImmutableEnvelope;
 import org.geotoolkit.gml.xml.AbstractRing;
 import org.geotoolkit.gml.xml.v321.PolygonPatchType;
 import org.geotoolkit.gml.xml.v321.PolygonType;
 import org.geotoolkit.gml.xml.v321.SurfaceType;
-import org.geotoolkit.referencing.CRS;
-import org.geotoolkit.xml.MarshallerPool;
+import org.apache.sis.referencing.CRS;
+import org.apache.sis.xml.MarshallerPool;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,7 +28,7 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.FactoryException;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 public class VerifyGeodesyUtils {
 
@@ -40,7 +40,7 @@ public class VerifyGeodesyUtils {
 	@BeforeClass
 	public static void initBasicFixture() throws ParserConfigurationException,
 			JAXBException {
-		MarshallerPool pool = new MarshallerPool("org.geotoolkit.gml.xml.v321");
+		MarshallerPool pool = org.geotoolkit.gml.xml.GMLMarshallerPool.getInstance();
 		gmlUnmarshaller = pool.acquireUnmarshaller();
 	}
 
@@ -71,7 +71,7 @@ public class VerifyGeodesyUtils {
 
 	@Test
 	public void getCRSIdentifier_epsg4326() throws FactoryException {
-		CoordinateReferenceSystem crs = CRS.decode("EPSG:4326");
+		CoordinateReferenceSystem crs = CRS.forCode("EPSG:4326");
 		assertNotNull(crs);
 		String crsId = GeodesyUtils.getCRSIdentifier(crs);
 		assertFalse("No identifier found.", crsId.isEmpty());
@@ -83,8 +83,8 @@ public class VerifyGeodesyUtils {
 	public void calculateDestinationNorthFromYVR()
 			throws NoSuchAuthorityCodeException, FactoryException {
 		GeneralDirectPosition yvrPos = new GeneralDirectPosition(
-				CRS.decode("EPSG:4326"));
-		yvrPos.setLocation(new double[] { 49.194722, -123.183889 });
+				CRS.forCode("EPSG:4326"));
+		yvrPos.setCoordinate(new double[] { 49.194722, -123.183889 });
 		// north 1852 m (1 NM) ~ 1' (0.016667 deg)
 		DirectPosition destPos = GeodesyUtils.calculateDestination(yvrPos, 0.0,
 				1852.0);
@@ -99,8 +99,8 @@ public class VerifyGeodesyUtils {
 	public void calculateDestinationEastFromYVR()
 			throws NoSuchAuthorityCodeException, FactoryException {
 		GeneralDirectPosition yvrPos = new GeneralDirectPosition(
-				CRS.decode("EPSG:4326"));
-		yvrPos.setLocation(new double[] { 49.194722, -123.183889 });
+				CRS.forCode("EPSG:4326"));
+		yvrPos.setCoordinate(new double[] { 49.194722, -123.183889 });
 		// east 1852 m (1 NM) ~ 0.025310 deg lon at 49 deg lat
 		DirectPosition destPos = GeodesyUtils.calculateDestination(yvrPos,
 				90.0, 1852.0);
@@ -115,8 +115,8 @@ public class VerifyGeodesyUtils {
 	public void calculateDestinationWestFromYVR()
 			throws NoSuchAuthorityCodeException, FactoryException {
 		GeneralDirectPosition yvrPos = new GeneralDirectPosition(
-				CRS.decode("EPSG:4326"));
-		yvrPos.setLocation(new double[] { 49.194722, -123.183889 });
+				CRS.forCode("EPSG:4326"));
+		yvrPos.setCoordinate(new double[] { 49.194722, -123.183889 });
 		// east 1852 m (1 NM) ~ 0.025310 deg lon at 49 deg lat
 		DirectPosition destPos = GeodesyUtils.calculateDestination(yvrPos,
 				270.0, 1852.0);
@@ -155,8 +155,7 @@ public class VerifyGeodesyUtils {
 		JAXBElement<SurfaceType> surface = (JAXBElement<SurfaceType>) gmlUnmarshaller
 				.unmarshal(url);
 		PolygonPatchType patch = (PolygonPatchType) surface.getValue()
-				.getPatches().getValue().getAbstractSurfacePatch().get(0)
-				.getValue();
+				.getPatches().getAbstractSurfacePatch().get(0);
 		AbstractRing exterior = patch.getExterior().getAbstractRing();
 		exterior.setSrsName(surface.getValue().getSrsName());
 		Coordinate[] coords = GeodesyUtils
@@ -197,8 +196,7 @@ public class VerifyGeodesyUtils {
                 JAXBElement<SurfaceType> surface = (JAXBElement<SurfaceType>) gmlUnmarshaller
                                 .unmarshal(url);
                 PolygonPatchType patch = (PolygonPatchType) surface.getValue()
-                                .getPatches().getValue().getAbstractSurfacePatch().get(0)
-                                .getValue();
+                                .getPatches().getAbstractSurfacePatch().get(0);
                 AbstractRing exterior = patch.getExterior().getAbstractRing();
                 exterior.setSrsName(surface.getValue().getSrsName());
                 Coordinate[] coords = GeodesyUtils

@@ -3,7 +3,7 @@ package org.opengis.cite.geomatics.gml;
 import java.util.List;
 import org.geotoolkit.gml.xml.AbstractGeometry;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 /**
  * This interface defines a factory for generating a sequence of points from a

@@ -7,15 +7,15 @@ import java.net.URL;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.geotoolkit.gml.xml.v321.PolygonType;
 import org.geotoolkit.gml.xml.v321.SurfaceType;
-import org.geotoolkit.xml.MarshallerPool;
+import org.apache.sis.xml.MarshallerPool;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -23,7 +23,7 @@ import org.junit.rules.ExpectedException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 public class VerifySurfaceCoordinateListFactory {
 
@@ -35,7 +35,7 @@ public class VerifySurfaceCoordinateListFactory {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
         docBuilder = dbf.newDocumentBuilder();
-        MarshallerPool pool = new MarshallerPool("org.geotoolkit.gml.xml.v321");
+        MarshallerPool pool = org.geotoolkit.gml.xml.GMLMarshallerPool.getInstance();
         gmlUnmarshaller = pool.acquireUnmarshaller();
     }
 

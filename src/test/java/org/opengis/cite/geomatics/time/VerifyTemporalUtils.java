@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.TreeSet;
 
 import org.geotoolkit.temporal.factory.DefaultTemporalFactory;
-import org.geotoolkit.temporal.object.DefaultPosition;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,12 +30,12 @@ public class VerifyTemporalUtils {
 	public void instantDuringPeriod() {
 		ZonedDateTime t1 = ZonedDateTime.of(2015, 12, 3, 10, 15, 30, 0,
 				ZoneId.of("Z"));
-		Instant instant = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.toInstant())));
-		Instant startPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.minusMonths(10).toInstant())));
-		Instant endPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.plusMonths(5).toInstant())));
+		Instant instant = TM_FACTORY.createInstant(Date
+				.from(t1.toInstant()));
+		Instant startPeriod = TM_FACTORY.createInstant(Date
+				.from(t1.minusMonths(10).toInstant()));
+		Instant endPeriod = TM_FACTORY.createInstant(Date
+				.from(t1.plusMonths(5).toInstant()));
 		Period period = TM_FACTORY.createPeriod(startPeriod, endPeriod);
 		TemporalUtils.assertTemporalRelation(RelativePosition.DURING, instant,
 				period);
@@ -48,12 +47,12 @@ public class VerifyTemporalUtils {
 		thrown.expectMessage("The actual temporal relation is CONTAINS");
 		ZonedDateTime t1 = ZonedDateTime.of(2015, 12, 3, 10, 15, 30, 0,
 				ZoneId.of("Z"));
-		Instant instant = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.toInstant())));
-		Instant startPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.minusMonths(10).toInstant())));
-		Instant endPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.plusMonths(5).toInstant())));
+		Instant instant = TM_FACTORY.createInstant(Date
+				.from(t1.toInstant()));
+		Instant startPeriod = TM_FACTORY.createInstant(Date
+				.from(t1.minusMonths(10).toInstant()));
+		Instant endPeriod = TM_FACTORY.createInstant(Date
+				.from(t1.plusMonths(5).toInstant()));
 		Period period = TM_FACTORY.createPeriod(startPeriod, endPeriod);
 		TemporalUtils.assertTemporalRelation(RelativePosition.DURING, period,
 				instant);
@@ -63,12 +62,12 @@ public class VerifyTemporalUtils {
 	public void instantBeforePeriod() {
 		ZonedDateTime t1 = ZonedDateTime.of(2015, 12, 3, 10, 15, 30, 0,
 				ZoneId.of("Z"));
-		Instant instant = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.toInstant())));
-		Instant startPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.plusMonths(1).toInstant())));
-		Instant endPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.plusMonths(5).toInstant())));
+		Instant instant = TM_FACTORY.createInstant(Date
+				.from(t1.toInstant()));
+		Instant startPeriod = TM_FACTORY.createInstant(Date
+				.from(t1.plusMonths(1).toInstant()));
+		Instant endPeriod = TM_FACTORY.createInstant(Date
+				.from(t1.plusMonths(5).toInstant()));
 		Period period = TM_FACTORY.createPeriod(startPeriod, endPeriod);
 		TemporalUtils.assertTemporalRelation(RelativePosition.BEFORE, instant,
 				period);
@@ -80,12 +79,12 @@ public class VerifyTemporalUtils {
 		thrown.expectMessage("The actual temporal relation is AFTER");
 		ZonedDateTime t1 = ZonedDateTime.of(2015, 12, 3, 10, 15, 30, 0,
 				ZoneId.of("Z"));
-		Instant instant = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.toInstant())));
-		Instant startPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.minusMonths(5).toInstant())));
-		Instant endPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.minusMonths(1).toInstant())));
+		Instant instant = TM_FACTORY.createInstant(Date
+				.from(t1.toInstant()));
+		Instant startPeriod = TM_FACTORY.createInstant(Date
+				.from(t1.minusMonths(5).toInstant()));
+		Instant endPeriod = TM_FACTORY.createInstant(Date
+				.from(t1.minusMonths(1).toInstant()));
 		Period period = TM_FACTORY.createPeriod(startPeriod, endPeriod);
 		TemporalUtils.assertTemporalRelation(RelativePosition.BEFORE, instant,
 				period);
@@ -97,13 +96,13 @@ public class VerifyTemporalUtils {
 				new TemporalComparator());
 		ZonedDateTime t1 = ZonedDateTime.of(2015, 12, 3, 10, 15, 30, 0,
 				ZoneId.of("Z"));
-		Instant instant = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.toInstant())));
+		Instant instant = TM_FACTORY.createInstant(Date
+				.from(t1.toInstant()));
 		tmSet.add(instant);
-		Instant startPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.minusMonths(5).toInstant())));
-		Instant endPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.minusMonths(1).toInstant())));
+		Instant startPeriod = TM_FACTORY.createInstant(Date
+				.from(t1.minusMonths(5).toInstant()));
+		Instant endPeriod = TM_FACTORY.createInstant(Date
+				.from(t1.minusMonths(1).toInstant()));
 		Period period = TM_FACTORY.createPeriod(startPeriod, endPeriod);
 		tmSet.add(period);
 		Period extent = TemporalUtils.temporalExtent(tmSet);
@@ -111,8 +110,8 @@ public class VerifyTemporalUtils {
 				.startsWith("P5M"));
 		DateTimeFormatter xsdDateTimeFormatter = DateTimeFormatter
 				.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
-		ZonedDateTime endDateTime = ZonedDateTime.parse(extent.getEnding()
-				.getPosition().getDateTime().toString(), xsdDateTimeFormatter);
+		ZonedDateTime endDateTime = ZonedDateTime.parse(TemporalUtils.getDateTime(extent.getEnding()),
+				xsdDateTimeFormatter);
 		assertTrue("Unexpected end of interval.", t1.plus(1, ChronoUnit.HOURS)
 				.isEqual(endDateTime));
 	}
@@ -123,14 +122,14 @@ public class VerifyTemporalUtils {
 				new TemporalComparator());
 		ZonedDateTime t1 = ZonedDateTime.of(2015, 12, 3, 10, 15, 30, 0,
 				ZoneId.of("Z"));
-		Instant instant = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.toInstant())));
+		Instant instant = TM_FACTORY.createInstant(Date
+				.from(t1.toInstant()));
 		tmSet.add(instant);
 		// period CONTAINS instant
-		Instant startPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.minusMonths(5).toInstant())));
-		Instant endPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.plusMonths(2).toInstant())));
+		Instant startPeriod = TM_FACTORY.createInstant(Date
+				.from(t1.minusMonths(5).toInstant()));
+		Instant endPeriod = TM_FACTORY.createInstant(Date
+				.from(t1.plusMonths(2).toInstant()));
 		Period period = TM_FACTORY.createPeriod(startPeriod, endPeriod);
 		tmSet.add(period);
 		Period extent = TemporalUtils.temporalExtent(tmSet);
@@ -142,32 +141,32 @@ public class VerifyTemporalUtils {
 	public void add1Day() {
 		ZonedDateTime t1 = ZonedDateTime.of(2015, 12, 3, 10, 15, 30, 0,
 				ZoneId.of("Z"));
-		Instant instant = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.toInstant())));
+		Instant instant = TM_FACTORY.createInstant(Date
+				.from(t1.toInstant()));
 		Instant newInstant = TemporalUtils.add(instant, 1, ChronoUnit.DAYS);
-		assertTrue("Expected date 2015-12-04", newInstant.getPosition()
-				.getDateTime().toString().startsWith("2015-12-04"));
+		assertTrue("Expected date 2015-12-04", TemporalUtils.getDateTime(newInstant)
+				.startsWith("2015-12-04"));
 	}
 
 	@Test
 	public void subtract1Month() {
 		ZonedDateTime t1 = ZonedDateTime.of(2015, 12, 3, 10, 15, 30, 0,
 				ZoneId.of("Z"));
-		Instant instant = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.toInstant())));
+		Instant instant = TM_FACTORY.createInstant(Date
+				.from(t1.toInstant()));
 		Instant newInstant = TemporalUtils.add(instant, -1, ChronoUnit.MONTHS);
-		assertTrue("Expected date 2015-11-03", newInstant.getPosition()
-				.getDateTime().toString().startsWith("2015-11-03"));
+		assertTrue("Expected date 2015-11-03", TemporalUtils.getDateTime(newInstant)
+				.startsWith("2015-11-03"));
 	}
 
 	@Test
 	public void splitPeriodInto2Intervals() {
 		ZonedDateTime t1 = ZonedDateTime.of(2015, 12, 3, 10, 15, 30, 0,
 				ZoneId.of("Z"));
-		Instant startPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.minusMonths(1).toInstant())));
-		Instant endPeriod = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(t1.plusMonths(1).toInstant())));
+		Instant startPeriod = TM_FACTORY.createInstant(Date
+				.from(t1.minusMonths(1).toInstant()));
+		Instant endPeriod = TM_FACTORY.createInstant(Date
+				.from(t1.plusMonths(1).toInstant()));
 		Period period = TM_FACTORY.createPeriod(startPeriod, endPeriod);
 		List<Period> subIntervals = TemporalUtils.splitInterval(period, 2);
 		assertEquals(2, subIntervals.size());
