@@ -194,6 +194,12 @@
       <groupId>org.geotoolkit.pending</groupId>
       <artifactId>geotk-xml-gml</artifactId>
       <version>${geotk.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>jts</artifactId>
+          <groupId>com.vividsolutions</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.geotoolkit.pending</groupId>
