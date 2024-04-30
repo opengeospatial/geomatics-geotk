@@ -1,5 +1,11 @@
 ﻿# Release Notes
 
+## 1.17 (2024-04-30)
+
+* [#14](https://github.com/opengeospatial/geomatics-geotk/pull/14): Handle geometries containing GML patches
+* [#17](https://github.com/opengeospatial/geomatics-geotk/pull/17): Update derby to version 10.14.2.0
+* [#18](https://github.com/opengeospatial/geomatics-geotk/pull/18): Exclude old version of jts
+
 ## 1.16 (2021-10-29)
 
 * [#8](https://github.com/opengeospatial/geomatics-geotk/issues/8): Calculate envelope using single geometry
