@@ -1,21 +1,21 @@
 package org.opengis.cite.geomatics;
 
 import java.util.logging.Logger;
-import javax.xml.transform.dom.DOMSource;
-import jakarta.xml.bind.JAXBException;
 
 import javax.measure.Unit;
 import javax.measure.UnitConverter;
 import javax.measure.quantity.Length;
+import javax.xml.transform.dom.DOMSource;
 
 import org.apache.sis.measure.Units;
 import org.apache.sis.referencing.CRS;
-
 import org.geotoolkit.geometry.jts.JTS;
 import org.geotoolkit.gml.GeometrytoJTS;
 import org.geotoolkit.gml.xml.AbstractGeometry;
 import org.geotoolkit.gml.xml.Curve;
-
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.operation.distance.DistanceOp;
 import org.opengis.cite.geomatics.gml.GmlUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -24,9 +24,7 @@ import org.opengis.util.FactoryException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.operation.distance.DistanceOp;
+import jakarta.xml.bind.JAXBException;
 
 /**
  * Provides methods to test for the existence of a specified spatial

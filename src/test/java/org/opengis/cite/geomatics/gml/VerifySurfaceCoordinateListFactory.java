@@ -1,29 +1,30 @@
 package org.opengis.cite.geomatics.gml;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
 
-import jakarta.xml.bind.JAXBElement;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.sis.xml.MarshallerPool;
 import org.geotoolkit.gml.xml.v321.PolygonType;
 import org.geotoolkit.gml.xml.v321.SurfaceType;
-import org.apache.sis.xml.MarshallerPool;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.locationtech.jts.geom.Coordinate;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import org.locationtech.jts.geom.Coordinate;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 
 public class VerifySurfaceCoordinateListFactory {
 

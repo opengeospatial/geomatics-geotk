@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opengis.cite</groupId>
   <artifactId>geomatics-geotk</artifactId>
-  <version>1.17-SNAPSHOT</version>
+  <version>1.18-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Geomatics Utilities (Geotk v3)</name>
   <description>
@@ -208,6 +208,12 @@
       <groupId>org.geotoolkit</groupId>
       <artifactId>geotk-xml-gml</artifactId>
       <version>${geotk.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>jts</artifactId>
+          <groupId>com.vividsolutions</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.geotoolkit</groupId>
@@ -325,11 +331,10 @@
                   <goal>sign</goal>
                 </goals>
                 <configuration>
-                  <!-- Enable if GPG 2.1+ is used -->
-                  <!--<gpgArguments>
-                    <arg>&#45;&#45;pinentry-mode</arg>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
                     <arg>loopback</arg>
-                  </gpgArguments>-->
+                  </gpgArguments>
                 </configuration>
               </execution>
             </executions>

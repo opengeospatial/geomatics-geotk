@@ -1,21 +1,20 @@
 package org.opengis.cite.geomatics.gml;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.net.URL;
-import jakarta.xml.bind.JAXBElement;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Unmarshaller;
 
-import org.geotoolkit.gml.xml.v321.CurveType;
 import org.apache.sis.xml.MarshallerPool;
+import org.geotoolkit.gml.xml.v321.CurveType;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.opengis.cite.geomatics.gml.GeometryCoordinateList;
-
 import org.locationtech.jts.geom.Coordinate;
+
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 
 public class VerifyGeometryCoordinateList {
 

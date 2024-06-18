@@ -1,34 +1,38 @@
 package org.opengis.cite.geomatics;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.xml.bind.JAXBElement;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Unmarshaller;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.sis.geometry.GeneralDirectPosition;
 import org.apache.sis.geometry.ImmutableEnvelope;
+import org.apache.sis.referencing.CRS;
+import org.apache.sis.xml.MarshallerPool;
 import org.geotoolkit.gml.xml.AbstractRing;
 import org.geotoolkit.gml.xml.v321.PolygonPatchType;
 import org.geotoolkit.gml.xml.v321.PolygonType;
 import org.geotoolkit.gml.xml.v321.SurfaceType;
-import org.apache.sis.referencing.CRS;
-import org.apache.sis.xml.MarshallerPool;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.locationtech.jts.geom.Coordinate;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.FactoryException;
 
-import org.locationtech.jts.geom.Coordinate;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 
 public class VerifyGeodesyUtils {
 

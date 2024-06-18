@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import jakarta.xml.bind.JAXBException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -24,6 +23,7 @@ import org.hamcrest.core.StringContains;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.locationtech.jts.geom.Polygon;
 import org.opengis.cite.geomatics.gml.GmlUtils;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.Envelope;
@@ -36,7 +36,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import org.locationtech.jts.geom.Polygon;
+import jakarta.xml.bind.JAXBException;
 
 public class VerifyExtents extends CommonTestFixture {
 
