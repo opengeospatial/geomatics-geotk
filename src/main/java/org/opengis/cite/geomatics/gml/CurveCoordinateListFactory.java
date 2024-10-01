@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBElement;
 import org.geotoolkit.gml.xml.AbstractCurveSegment;
 import org.geotoolkit.gml.xml.AbstractGeometry;
 import org.geotoolkit.gml.xml.Curve;
@@ -31,7 +31,7 @@ import org.geotoolkit.gml.xml.v321.LinearRingType;
 import org.geotoolkit.gml.xml.v321.OrientableCurveType;
 import org.geotoolkit.gml.xml.v321.RingType;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 /**
  * Creates a sequence containing the coordinates of a curve. The list will
@@ -97,7 +97,7 @@ public class CurveCoordinateListFactory implements CoordinateListFactory {
 
     /**
      * Returns a list of points on a curve consisting of one or more segments.
-     * 
+     *
      * @param curve
      *            A gml:Curve geometry instance.
      * @return A list of coordinates on the curve.
@@ -115,7 +115,7 @@ public class CurveCoordinateListFactory implements CoordinateListFactory {
                         + className);
             }
             coordList.addAll(segmentType.getCoordinateList(segment,
-                    curve.getCoordinateReferenceSystem()));
+                    curve.getCoordinateReferenceSystem(false)));
         }
         return coordList;
     }
@@ -123,7 +123,7 @@ public class CurveCoordinateListFactory implements CoordinateListFactory {
     /**
      * Returns a list of points representing the vertices of a LineString
      * geometry.
-     * 
+     *
      * @param lineString
      *            A gml:LineString geometry instance.
      * @return The list of vertices.
@@ -145,7 +145,7 @@ public class CurveCoordinateListFactory implements CoordinateListFactory {
     /**
      * Returns a list of points on a composite curve consisting of one or more
      * curve members.
-     * 
+     *
      * @param compCurve
      *            A gml:CompositeCurve geometry instance.
      * @return A list of points on the entire curve; the interpolation method
@@ -168,7 +168,7 @@ public class CurveCoordinateListFactory implements CoordinateListFactory {
      * Returns a list of points on an orientable curve. If the orientation is
      * positive ("+"), then the orientable curve is identical to the base curve;
      * otherwise the base curve is traversed in reverse order.
-     * 
+     *
      * @param orientableCurve
      *            A gml:OrientableCurve geometry instance.
      * @return A list of points on the (base) curve; the order reflects the
@@ -189,7 +189,7 @@ public class CurveCoordinateListFactory implements CoordinateListFactory {
      * Returns a list of points on a ring representing a single connected
      * component of a surface boundary. A ring is structurally similar to a
      * composite curve.
-     * 
+     *
      * @param ring
      *            A ring (gml:Ring or gml:LinearRing element).
      * @return A list of points on a ring (closed curve).

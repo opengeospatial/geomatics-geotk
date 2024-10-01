@@ -10,9 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,7 +21,14 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.geotoolkit.geometry.GeneralDirectPosition;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
+
+import org.apache.sis.geometry.GeneralDirectPosition;
+import org.apache.sis.referencing.CRS;
+import org.apache.sis.xml.MarshallerPool;
+
 import org.geotoolkit.geometry.jts.JTS;
 import org.geotoolkit.gml.xml.AbstractCurveSegment;
 import org.geotoolkit.gml.xml.AbstractGeometry;
@@ -32,10 +36,8 @@ import org.geotoolkit.gml.xml.Curve;
 import org.geotoolkit.gml.xml.v321.AngleType;
 import org.geotoolkit.gml.xml.v321.ArcByCenterPointType;
 import org.geotoolkit.gml.xml.v321.LengthType;
-import org.geotoolkit.referencing.CRS;
+import org.geotoolkit.gml.xml.GMLMarshallerPool;
 import org.geotoolkit.temporal.factory.DefaultTemporalFactory;
-import org.geotoolkit.temporal.object.DefaultPosition;
-import org.geotoolkit.xml.MarshallerPool;
 import org.opengis.cite.geomatics.GeodesyUtils;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -49,15 +51,15 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.vividsolutions.jts.algorithm.ConvexHull;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
+import org.locationtech.jts.algorithm.ConvexHull;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
 
 /**
  * Provides utility methods for processing representations of GML elements.
- * 
+ *
  */
 public class GmlUtils {
 
@@ -70,7 +72,7 @@ public class GmlUtils {
     private static Unmarshaller initGmlUnmarshaller() {
         Unmarshaller unmarshaller = null;
         try {
-            MarshallerPool pool = new MarshallerPool("org.geotoolkit.gml.xml.v321");
+            MarshallerPool pool = GMLMarshallerPool.getInstance();
             unmarshaller = pool.acquireUnmarshaller();
         } catch (JAXBException je) {
             throw new RuntimeException(je);
@@ -85,7 +87,7 @@ public class GmlUtils {
      * {@link #TOTAL_ARC_POINTS}; the approximation improves as the number of
      * points increases. The calculated positions are added to the given list as
      * JTS {@code Coordinate} objects.
-     * 
+     *
      * @param segment
      *            A curve segment representing an arc (gml:ArcByCenterPoint or
      *            an allowable substitution).
@@ -101,7 +103,7 @@ public class GmlUtils {
         List<Double> centerCoords = (null != arc.getPos()) ? arc.getPos().getValue() : arc.getPosList().getValue();
         GeneralDirectPosition center = new GeneralDirectPosition(crs);
         // can only be used in 2D
-        center.setLocation(new double[] { centerCoords.get(0), centerCoords.get(1) });
+        center.setCoordinate(new double[] { centerCoords.get(0), centerCoords.get(1) });
         AngleType startAngle = arc.getStartAngle();
         AngleType endAngle = arc.getEndAngle();
         if (null == startAngle) { // is CircleByCenterPoint
@@ -130,7 +132,7 @@ public class GmlUtils {
      * Calculates the planar convex hull of the given GML geometry element. The
      * convex hull is the smallest convex geometry that contains the input
      * geometry.
-     * 
+     *
      * @param gmlGeom
      *            A GML geometry element.
      * @return A JTS Geometry object. This will be a {@code Polygon} if the hull
@@ -148,9 +150,9 @@ public class GmlUtils {
      * Sets the srsName attribute on all members of a GML geometry collection if
      * it is specified for the collection. If a geometry member already has a
      * srsName attribute it is left as is.
-     * 
+     *
      * @see "ISO 19136, cl. 10.1.3.2: SRSReferenceGroup"
-     * 
+     *
      * @param geometryNodes
      *            A sequence of GML geometry elements.
      */
@@ -188,7 +190,7 @@ public class GmlUtils {
      * the fragment part). Common units of length are shown in the following
      * table. Standard SI prefix symbols may also be used to specify decimal
      * multiples and submultiples of the unit of length (e.g. km).
-     * 
+     *
      * <table border="1">
      * <caption>Units of length</caption>
      * <tr>
@@ -212,19 +214,19 @@ public class GmlUtils {
      * <td>1852</td>
      * </tr>
      * </table>
-     * 
+     *
      * @see <a href="http://www.bipm.org/en/si/si_brochure/">SI brochure (8th
      *      edition)</a>
      * @see <a href="http://unitsofmeasure.org/ucum.html">The Unified Code for
      *      Units of Measure</a>
-     * 
+     *
      * @param length
      *            A length measurement.
      * @return The length in meters.
-     * 
+     *
      */
     public static double lengthInMeters(LengthType length) {
-        String uom = length.getUom();
+        String uom = length.getUomStr();
         String symbol = uom.indexOf('#') >= 0 ? uom.substring(uom.indexOf('#') + 1) : uom;
         double lengthInMeters;
         if (symbol.equals("m")) {
@@ -244,7 +246,7 @@ public class GmlUtils {
     /**
      * Extracts (2D) coordinates from a sequence of coordinate tuples and adds
      * them to a list.
-     * 
+     *
      * @param tupleList
      *            A sequence of coordinate tuples within the same coordinate
      *            reference system (CRS).
@@ -267,7 +269,7 @@ public class GmlUtils {
      * Indicates the minimum number of direct positions required to specify a
      * GML curve segment. The value depends on the type of curve segment, but
      * falls in the range 1-3.
-     * 
+     *
      * @param segmentTypeName
      *            The local name of element representing a the curve segment.
      * @return An integer value &gt; 0.
@@ -293,14 +295,14 @@ public class GmlUtils {
      * <li>the gml:boundedBy/gml:Envelope element in the containing feature
      * instance.</li>
      * </ol>
-     * 
+     *
      * <p>
      * As a side effect, an implicit CRS reference will be added to the element
      * using the inherited srsName value.
      * </p>
-     * 
+     *
      * @see "ISO 19136, cl. 9.10, 10.1.3.2"
-     * 
+     *
      * @param geom
      *            An Element representing a GML geometry object.
      * @return A String denoting a CRS reference (an absolute URI value), or an
@@ -401,14 +403,14 @@ public class GmlUtils {
     /**
      * Checks if a DOM Element has a child element with the given qualified
      * name.
-     * 
+     *
      * @param elem
      *            A DOM Element.
      * @param namespace
      *            A namespace name (absolute URI).
      * @param localName
      *            A String representing the local name of an element.
-     * 
+     *
      * @return {@code true} if one or more matching child elements are present;
      *         {@code false} otherwise.
      */
@@ -418,7 +420,7 @@ public class GmlUtils {
 
     /**
      * Deserializes an XML resource into a GML geometry representation.
-     * 
+     *
      * @param uriRef
      *            An absolute URI that specifies the location of the resource.
      * @return A GML geometry object.
@@ -435,7 +437,7 @@ public class GmlUtils {
 
     /**
      * Deserializes an XML source into a GML geometry representation.
-     * 
+     *
      * @param source
      *            The source to read from (providers are only required to
      *            support SAXSource, DOMSource, and StreamSource).
@@ -452,7 +454,7 @@ public class GmlUtils {
     /**
      * Creates a JTS LineString geometry from a GML Curve geometry. Some points
      * may be inferred if not given explicitly (e.g. on arc-based segments).
-     * 
+     *
      * @param gmlCurve
      *            A GML curve.
      * @return A LineString, or null if one could not be constructed.
@@ -467,7 +469,7 @@ public class GmlUtils {
         // add CRS to user data
         CoordinateReferenceSystem crs = null;
         try {
-            crs = CRS.decode(GeodesyUtils.convertSRSNameToURN(gmlCurve.getSrsName()));
+            crs = CRS.forCode(GeodesyUtils.convertSRSNameToURN(gmlCurve.getSrsName()));
             JTS.setCRS(line, crs);
         } catch (FactoryException e) {
             throw new RuntimeException(e.getMessage());
@@ -478,7 +480,7 @@ public class GmlUtils {
     /**
      * Creates a TemporalGeometricPrimitive instance from a GML temporal value
      * representation.
-     * 
+     *
      * @param gmlTime
      *            A gml:TimeInstant or gml:TimePeriod element.
      * @return A TemporalGeometricPrimitive object (instant or period).
@@ -512,10 +514,10 @@ public class GmlUtils {
         TemporalFactory tmFactory = new DefaultTemporalFactory();
         TemporalGeometricPrimitive timePrimitive = null;
         if (instants.size() == 1) {
-            timePrimitive = tmFactory.createInstant(new DefaultPosition(Date.from(instants.get(0).toInstant())));
+            timePrimitive = tmFactory.createInstant(Date.from(instants.get(0).toInstant()));
         } else {
-            Instant beginInstant = tmFactory.createInstant(new DefaultPosition(Date.from(instants.get(0).toInstant())));
-            Instant endInstant = tmFactory.createInstant(new DefaultPosition(Date.from(instants.get(1).toInstant())));
+            Instant beginInstant = tmFactory.createInstant(Date.from(instants.get(0).toInstant()));
+            Instant endInstant = tmFactory.createInstant(Date.from(instants.get(1).toInstant()));
             timePrimitive = tmFactory.createPeriod(beginInstant, endInstant);
         }
         return timePrimitive;
@@ -523,10 +525,10 @@ public class GmlUtils {
 
     /**
      * Convert Surface or Curve geometry to MultiSurface or MultiCurve.
-     * 
+     *
      * @param geomNode
      *            Element with Surface/Curve details.
-     * 
+     *
      * @return {@link Element} Returns converted element to Multi geometry type.
      */
     public static Element convertToMultiType(Node geomNode) {

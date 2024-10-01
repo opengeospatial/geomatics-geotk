@@ -1,5 +1,6 @@
 package org.opengis.cite.geomatics.time;
 
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -11,7 +12,6 @@ import java.util.List;
 import java.util.TreeSet;
 
 import org.geotoolkit.temporal.factory.DefaultTemporalFactory;
-import org.geotoolkit.temporal.object.DefaultPosition;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
 import org.opengis.temporal.RelativePosition;
@@ -21,7 +21,7 @@ import org.opengis.temporal.TemporalGeometricPrimitive;
 /**
  * Provides various utility methods that apply to representations of temporal
  * objects.
- * 
+ *
  * @see "ISO 19108: Geographic information -- Temporal schema"
  * @see <a
  *      href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.329.2647">Maintaining
@@ -50,7 +50,7 @@ public class TemporalUtils {
 	 * <li>BegunBy</li>
 	 * <li>EndedBy</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param temporalRelation
 	 *            A RelativePosition instance that designates a temporal
 	 *            relationship.
@@ -76,7 +76,7 @@ public class TemporalUtils {
 
 	/**
 	 * Produces a condensed string representation of the given temporal object.
-	 * 
+	 *
 	 * @param timeObj
 	 *            A temporal geometric primitive (instant or period).
 	 * @return A String that displays temporal position in accord with ISO 8601.
@@ -87,14 +87,14 @@ public class TemporalUtils {
 		if (Instant.class.isInstance(timeObj)) {
 			strBuilder.append("Instant: ");
 			Instant instant = Instant.class.cast(timeObj);
-			strBuilder.append(instant.getPosition().getDateTime());
+			strBuilder.append(getDateTime(instant));
 		} else {
 			strBuilder.append("Period: ");
 			Period period = Period.class.cast(timeObj);
 			strBuilder
-					.append(period.getBeginning().getPosition().getDateTime())
+					.append(getDateTime(period.getBeginning()))
 					.append('/');
-			strBuilder.append(period.getEnding().getPosition().getDateTime());
+			strBuilder.append(getDateTime(period.getEnding()));
 		}
 		return strBuilder.toString();
 	}
@@ -103,7 +103,7 @@ public class TemporalUtils {
 	 * Determines the total temporal extent of a set of temporal primitives. The
 	 * actual interval is extended by one hour at each end to ensure it contains
 	 * all temporal objects in the set.
-	 * 
+	 *
 	 * @param tmSet
 	 *            An ordered set of TemporalGeometricPrimitive objects (instant
 	 *            or period); it cannot be empty.
@@ -144,7 +144,7 @@ public class TemporalUtils {
 	/**
 	 * Returns a copy of the given instant with the specified amount added or
 	 * subtracted.
-	 * 
+	 *
 	 * @param instant
 	 *            An instantaneous point in time.
 	 * @param amount
@@ -156,18 +156,18 @@ public class TemporalUtils {
 	public static Instant add(Instant instant, int amount, TemporalUnit unit) {
 		DateTimeFormatter xsdDateTimeFormatter = DateTimeFormatter
 				.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
-		ZonedDateTime dateTime = ZonedDateTime.parse(instant.getPosition()
-				.getDateTime().toString(), xsdDateTimeFormatter);
+		ZonedDateTime dateTime = ZonedDateTime.parse(getDateTime(instant),
+				xsdDateTimeFormatter);
 		ZonedDateTime newDateTime = dateTime.plus(amount, unit);
-		Instant newInstant = TM_FACTORY.createInstant(new DefaultPosition(Date
-				.from(newDateTime.toInstant())));
+		Instant newInstant = TM_FACTORY.createInstant(Date
+				.from(newDateTime.toInstant()));
 		return newInstant;
 	}
 
 	/**
 	 * Splits a time period into the specified number of intervals. Each
 	 * sub-interval will have approximately the same length.
-	 * 
+	 *
 	 * @param period
 	 *            A temporal interval.
 	 * @param size
@@ -178,23 +178,33 @@ public class TemporalUtils {
 	public static List<Period> splitInterval(Period period, int size) {
 		DateTimeFormatter xsdDateTimeFormatter = DateTimeFormatter
 				.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXX");
-		ZonedDateTime startDateTime = ZonedDateTime.parse(period.getBeginning()
-				.getPosition().getDateTime().toString(), xsdDateTimeFormatter);
-		ZonedDateTime endDateTime = ZonedDateTime.parse(period.getEnding()
-				.getPosition().getDateTime().toString(), xsdDateTimeFormatter);
+		ZonedDateTime startDateTime = ZonedDateTime.parse(getDateTime(period.getBeginning()),
+				xsdDateTimeFormatter);
+		ZonedDateTime endDateTime = ZonedDateTime.parse(getDateTime(period.getEnding()),
+				xsdDateTimeFormatter);
 		Duration duration = Duration.between(startDateTime, endDateTime)
 				.dividedBy(size);
 		List<Period> subIntervals = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
 			Instant startInstant = TM_FACTORY
-					.createInstant(new DefaultPosition(Date.from(startDateTime
-							.toInstant())));
+					.createInstant(Date.from(startDateTime
+							.toInstant()));
 			endDateTime = startDateTime.plus(duration);
-			Instant endInstant = TM_FACTORY.createInstant(new DefaultPosition(
-					Date.from(endDateTime.toInstant())));
+			Instant endInstant = TM_FACTORY.createInstant(
+					Date.from(endDateTime.toInstant()));
 			subIntervals.add(TM_FACTORY.createPeriod(startInstant, endInstant));
 			startDateTime = endDateTime;
 		}
 		return subIntervals;
+	}
+
+	/**
+	 * Reproduces the behavior of legacy {@code Instant.getPosition().getDateTime().toString()} calls.
+	 * Note: time zone is not correctly handled.
+	 */
+	static String getDateTime(final Instant instant) {
+		String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+		SimpleDateFormat dateFormat = new java.text.SimpleDateFormat(DATE_FORMAT);
+		return dateFormat.format(instant.getDate());
 	}
 }

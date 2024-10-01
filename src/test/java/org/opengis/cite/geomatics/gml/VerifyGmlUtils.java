@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -23,7 +23,7 @@ import org.geotoolkit.gml.xml.AbstractGeometry;
 import org.geotoolkit.gml.xml.Point;
 import org.geotoolkit.gml.xml.v321.CurveType;
 import org.geotoolkit.gml.xml.v321.LengthType;
-import org.geotoolkit.xml.MarshallerPool;
+import org.apache.sis.xml.MarshallerPool;
 import org.hamcrest.core.StringContains;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -38,10 +38,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Polygon;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Polygon;
 
 public class VerifyGmlUtils {
 
@@ -57,7 +57,7 @@ public class VerifyGmlUtils {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
         docBuilder = dbf.newDocumentBuilder();
-        MarshallerPool pool = new MarshallerPool("org.geotoolkit.gml.xml.v321");
+        MarshallerPool pool = org.geotoolkit.gml.xml.GMLMarshallerPool.getInstance();
         gmlUnmarshaller = pool.acquireUnmarshaller();
         geomFactory = new GeometryFactory();
     }
@@ -153,7 +153,7 @@ public class VerifyGmlUtils {
         CurveType curve = result.getValue();
         AbstractCurveSegment segment = curve.getSegments().getAbstractCurveSegment().get(0);
         List<Coordinate> coordSet = new ArrayList<Coordinate>();
-        GmlUtils.inferPointsOnArc(segment, curve.getCoordinateReferenceSystem(), coordSet);
+        GmlUtils.inferPointsOnArc(segment, curve.getCoordinateReferenceSystem(false), coordSet);
         assertEquals("Unexpected number of points on arc.", GmlUtils.TOTAL_ARC_POINTS, coordSet.size());
         // end of arc is 10 NM north of center point
         Coordinate arcEnd = coordSet.get(GmlUtils.TOTAL_ARC_POINTS - 1);
@@ -169,7 +169,7 @@ public class VerifyGmlUtils {
         CurveType curve = result.getValue();
         AbstractCurveSegment segment = curve.getSegments().getAbstractCurveSegment().get(0);
         List<Coordinate> coordSet = new ArrayList<Coordinate>();
-        GmlUtils.inferPointsOnArc(segment, curve.getCoordinateReferenceSystem(), coordSet);
+        GmlUtils.inferPointsOnArc(segment, curve.getCoordinateReferenceSystem(false), coordSet);
         // first and last points are identical (north of center)
         Coordinate arcEnd = coordSet.get(0);
         assertEquals("Point north of center has unexpected latitude", 49.19472 + 0.04496, arcEnd.x, 0.00015);
@@ -228,7 +228,7 @@ public class VerifyGmlUtils {
         assertTrue("Expected object of type " + Period.class.getName(), Period.class.isInstance(tmPrimitive));
         Period period = Period.class.cast(tmPrimitive);
         ZonedDateTime endTime = ZonedDateTime.parse("2016-07-10T22:05:39Z", DateTimeFormatter.ISO_DATE_TIME);
-        assertTrue(Date.from(endTime.toInstant()).equals(period.getEnding().getPosition().getDate()));
+        assertTrue(Date.from(endTime.toInstant()).equals(period.getEnding().getDate()));
     }
 
     @Test
@@ -240,7 +240,7 @@ public class VerifyGmlUtils {
         assertTrue("Expected object of type " + Instant.class.getName(), Instant.class.isInstance(tmPrimitive));
         Instant tmInstant = Instant.class.cast(tmPrimitive);
         ZonedDateTime zdt = ZonedDateTime.parse("2016-06-30T19:51:29Z", DateTimeFormatter.ISO_DATE_TIME);
-        assertTrue(Date.from(zdt.toInstant()).equals(tmInstant.getPosition().getDate()));
+        assertTrue(Date.from(zdt.toInstant()).equals(tmInstant.getDate()));
     }
 
     @Test
@@ -254,6 +254,6 @@ public class VerifyGmlUtils {
         assertTrue("Expected object of type " + Instant.class.getName(), Instant.class.isInstance(tmPrimitive));
         Instant tmInstant = Instant.class.cast(tmPrimitive);
         ZonedDateTime zdt = ZonedDateTime.parse("2016-06-30T00:00:00Z", DateTimeFormatter.ISO_DATE_TIME);
-        assertTrue(Date.from(zdt.toInstant()).equals(tmInstant.getPosition().getDate()));
+        assertTrue(Date.from(zdt.toInstant()).equals(tmInstant.getDate()));
     }
 }
