@@ -208,6 +208,20 @@
       <groupId>org.geotoolkit</groupId>
       <artifactId>geotk-xml-gml</artifactId>
       <version>${geotk.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>derby</artifactId>
+          <groupId>org.apache.derby</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>derbytools</artifactId>
+          <groupId>org.apache.derby</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>sis-embedded-data</artifactId>
+          <groupId>org.apache.sis.non-free</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.geotoolkit</groupId>
