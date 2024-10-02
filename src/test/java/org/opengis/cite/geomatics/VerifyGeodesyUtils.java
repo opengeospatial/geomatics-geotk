@@ -38,8 +38,7 @@ public class VerifyGeodesyUtils {
 	public ExpectedException thrown = ExpectedException.none();
 
 	@BeforeClass
-	public static void initBasicFixture() throws ParserConfigurationException,
-			JAXBException {
+	public static void initBasicFixture() throws ParserConfigurationException, JAXBException {
 		MarshallerPool pool = org.geotoolkit.gml.xml.GMLMarshallerPool.getInstance();
 		gmlUnmarshaller = pool.acquireUnmarshaller();
 	}
@@ -48,11 +47,9 @@ public class VerifyGeodesyUtils {
 	public void getExtentOfCRS_epsg4326() throws FactoryException {
 		String urn = "urn:ogc:def:crs:EPSG::4326";
 		ImmutableEnvelope envelope = GeodesyUtils.getDomainOfValidity(urn);
-		assertEquals("Envelope has unexpected dimension", 2,
-				envelope.getDimension());
+		assertEquals("Envelope has unexpected dimension", 2, envelope.getDimension());
 		DirectPosition lowerCorner = envelope.getLowerCorner();
-		assertEquals("Unexpected value for latitude of lower corner.", -90,
-				lowerCorner.getOrdinate(0), 0.01);
+		assertEquals("Unexpected value for latitude of lower corner.", -90, lowerCorner.getOrdinate(0), 0.01);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -75,139 +72,97 @@ public class VerifyGeodesyUtils {
 		assertNotNull(crs);
 		String crsId = GeodesyUtils.getCRSIdentifier(crs);
 		assertFalse("No identifier found.", crsId.isEmpty());
-		assertEquals("Unexpected CRS identifier.",
-				"urn:ogc:def:crs:EPSG::4326", crsId);
+		assertEquals("Unexpected CRS identifier.", "urn:ogc:def:crs:EPSG::4326", crsId);
 	}
 
 	@Test
-	public void calculateDestinationNorthFromYVR()
-			throws NoSuchAuthorityCodeException, FactoryException {
-		GeneralDirectPosition yvrPos = new GeneralDirectPosition(
-				CRS.forCode("EPSG:4326"));
+	public void calculateDestinationNorthFromYVR() throws NoSuchAuthorityCodeException, FactoryException {
+		GeneralDirectPosition yvrPos = new GeneralDirectPosition(CRS.forCode("EPSG:4326"));
 		yvrPos.setCoordinate(new double[] { 49.194722, -123.183889 });
 		// north 1852 m (1 NM) ~ 1' (0.016667 deg)
-		DirectPosition destPos = GeodesyUtils.calculateDestination(yvrPos, 0.0,
-				1852.0);
+		DirectPosition destPos = GeodesyUtils.calculateDestination(yvrPos, 0.0, 1852.0);
 		// tolerance ~ 10m
-		assertEquals("Unexpected latitude.", 49.194722 + 0.016667,
-				destPos.getOrdinate(0), 0.0001);
-		assertEquals("Unexpected longitude.", -123.183889,
-				destPos.getOrdinate(1), 0.00015);
+		assertEquals("Unexpected latitude.", 49.194722 + 0.016667, destPos.getOrdinate(0), 0.0001);
+		assertEquals("Unexpected longitude.", -123.183889, destPos.getOrdinate(1), 0.00015);
 	}
 
 	@Test
-	public void calculateDestinationEastFromYVR()
-			throws NoSuchAuthorityCodeException, FactoryException {
-		GeneralDirectPosition yvrPos = new GeneralDirectPosition(
-				CRS.forCode("EPSG:4326"));
+	public void calculateDestinationEastFromYVR() throws NoSuchAuthorityCodeException, FactoryException {
+		GeneralDirectPosition yvrPos = new GeneralDirectPosition(CRS.forCode("EPSG:4326"));
 		yvrPos.setCoordinate(new double[] { 49.194722, -123.183889 });
 		// east 1852 m (1 NM) ~ 0.025310 deg lon at 49 deg lat
-		DirectPosition destPos = GeodesyUtils.calculateDestination(yvrPos,
-				90.0, 1852.0);
+		DirectPosition destPos = GeodesyUtils.calculateDestination(yvrPos, 90.0, 1852.0);
 		// tolerance ~ 10m
-		assertEquals("Unexpected latitude.", 49.194722, destPos.getOrdinate(0),
-				0.0001);
-		assertEquals("Unexpected longitude.", -123.183889 + 0.025310,
-				destPos.getOrdinate(1), 0.00015);
+		assertEquals("Unexpected latitude.", 49.194722, destPos.getOrdinate(0), 0.0001);
+		assertEquals("Unexpected longitude.", -123.183889 + 0.025310, destPos.getOrdinate(1), 0.00015);
 	}
 
 	@Test
-	public void calculateDestinationWestFromYVR()
-			throws NoSuchAuthorityCodeException, FactoryException {
-		GeneralDirectPosition yvrPos = new GeneralDirectPosition(
-				CRS.forCode("EPSG:4326"));
+	public void calculateDestinationWestFromYVR() throws NoSuchAuthorityCodeException, FactoryException {
+		GeneralDirectPosition yvrPos = new GeneralDirectPosition(CRS.forCode("EPSG:4326"));
 		yvrPos.setCoordinate(new double[] { 49.194722, -123.183889 });
 		// east 1852 m (1 NM) ~ 0.025310 deg lon at 49 deg lat
-		DirectPosition destPos = GeodesyUtils.calculateDestination(yvrPos,
-				270.0, 1852.0);
+		DirectPosition destPos = GeodesyUtils.calculateDestination(yvrPos, 270.0, 1852.0);
 		// tolerance ~ 10m
-		assertEquals("Unexpected latitude.", 49.194722, destPos.getOrdinate(0),
-				0.0001);
-		assertEquals("Unexpected longitude.", -123.183889 - 0.025310,
-				destPos.getOrdinate(1), 0.00015);
+		assertEquals("Unexpected latitude.", 49.194722, destPos.getOrdinate(0), 0.0001);
+		assertEquals("Unexpected longitude.", -123.183889 - 0.025310, destPos.getOrdinate(1), 0.00015);
 	}
 
 	@Test
 	public void transformRingToRightHandedCS_LinearRing() throws JAXBException {
-		URL url = this.getClass().getResource(
-				"/gml/Polygon-InteriorLinearRing.xml");
+		URL url = this.getClass().getResource("/gml/Polygon-InteriorLinearRing.xml");
 		@SuppressWarnings("unchecked")
-		JAXBElement<PolygonType> polygon = (JAXBElement<PolygonType>) gmlUnmarshaller
-				.unmarshal(url);
-		AbstractRing exterior = polygon.getValue().getExterior()
-				.getAbstractRing();
+		JAXBElement<PolygonType> polygon = (JAXBElement<PolygonType>) gmlUnmarshaller.unmarshal(url);
+		AbstractRing exterior = polygon.getValue().getExterior().getAbstractRing();
 		exterior.setSrsName(polygon.getValue().getSrsName());
-		Coordinate[] coords = GeodesyUtils
-				.transformRingToRightHandedCS(exterior);
+		Coordinate[] coords = GeodesyUtils.transformRingToRightHandedCS(exterior);
 		assertNotNull("Coordinate sequence is null", coords);
-		assertEquals("Coordinate sequence has unexpected length.", 6,
-				coords.length);
-		assertEquals("First coordinate has unexpected x value.", -123.1839,
-				coords[0].x, 0.0001);
+		assertEquals("Coordinate sequence has unexpected length.", 6, coords.length);
+		assertEquals("First coordinate has unexpected x value.", -123.1839, coords[0].x, 0.0001);
 	}
 
 	@Test
-	public void transformRingToRightHandedCS_TripartiteCurve()
-			throws JAXBException {
-		URL url = this.getClass()
-				.getResource("/gml/Surface-PolygonPatch-3.xml");
+	public void transformRingToRightHandedCS_TripartiteCurve() throws JAXBException {
+		URL url = this.getClass().getResource("/gml/Surface-PolygonPatch-3.xml");
 		@SuppressWarnings("unchecked")
-		JAXBElement<SurfaceType> surface = (JAXBElement<SurfaceType>) gmlUnmarshaller
-				.unmarshal(url);
-		PolygonPatchType patch = (PolygonPatchType) surface.getValue()
-				.getPatches().getAbstractSurfacePatch().get(0);
+		JAXBElement<SurfaceType> surface = (JAXBElement<SurfaceType>) gmlUnmarshaller.unmarshal(url);
+		PolygonPatchType patch = (PolygonPatchType) surface.getValue().getPatches().getAbstractSurfacePatch().get(0);
 		AbstractRing exterior = patch.getExterior().getAbstractRing();
 		exterior.setSrsName(surface.getValue().getSrsName());
-		Coordinate[] coords = GeodesyUtils
-				.transformRingToRightHandedCS(exterior);
+		Coordinate[] coords = GeodesyUtils.transformRingToRightHandedCS(exterior);
 		assertNotNull("Coordinate sequence is null", coords);
 		// first/end point + 5 points on arc
-		assertEquals("Coordinate sequence has unexpected length.", 7,
-				coords.length);
-		assertEquals("First coordinate has unexpected x value.", -36.1667,
-				coords[0].x, 0.0001);
+		assertEquals("Coordinate sequence has unexpected length.", 7, coords.length);
+		assertEquals("First coordinate has unexpected x value.", -36.1667, coords[0].x, 0.0001);
 	}
 
 	@Test
-        public void transformRingToRightHandedCSKeepAllCoords_LinearRing() throws JAXBException {
-                URL url = this.getClass().getResource(
-                                "/gml/Polygon-InteriorLinearRing.xml");
-                @SuppressWarnings("unchecked")
-                JAXBElement<PolygonType> polygon = (JAXBElement<PolygonType>) gmlUnmarshaller
-                                .unmarshal(url);
-                AbstractRing exterior = polygon.getValue().getExterior()
-                                .getAbstractRing();
-                exterior.setSrsName(polygon.getValue().getSrsName());
-                Coordinate[] coords = GeodesyUtils
-                                .transformRingToRightHandedCSKeepAllCoords(exterior);
-                assertNotNull("Coordinate sequence is null", coords);
-                assertEquals("Coordinate sequence has unexpected length.", 6,
-                                coords.length);
-                assertEquals("First coordinate has unexpected x value.", -123.1839,
-                                coords[0].x, 0.0001);
-        }
+	public void transformRingToRightHandedCSKeepAllCoords_LinearRing() throws JAXBException {
+		URL url = this.getClass().getResource("/gml/Polygon-InteriorLinearRing.xml");
+		@SuppressWarnings("unchecked")
+		JAXBElement<PolygonType> polygon = (JAXBElement<PolygonType>) gmlUnmarshaller.unmarshal(url);
+		AbstractRing exterior = polygon.getValue().getExterior().getAbstractRing();
+		exterior.setSrsName(polygon.getValue().getSrsName());
+		Coordinate[] coords = GeodesyUtils.transformRingToRightHandedCSKeepAllCoords(exterior);
+		assertNotNull("Coordinate sequence is null", coords);
+		assertEquals("Coordinate sequence has unexpected length.", 6, coords.length);
+		assertEquals("First coordinate has unexpected x value.", -123.1839, coords[0].x, 0.0001);
+	}
 
-        @Test
-        public void transformRingToRightHandedCSKeepAllCoords_TripartiteCurve()
-                        throws JAXBException {
-                URL url = this.getClass()
-                                .getResource("/gml/Surface-PolygonPatch-3.xml");
-                @SuppressWarnings("unchecked")
-                JAXBElement<SurfaceType> surface = (JAXBElement<SurfaceType>) gmlUnmarshaller
-                                .unmarshal(url);
-                PolygonPatchType patch = (PolygonPatchType) surface.getValue()
-                                .getPatches().getAbstractSurfacePatch().get(0);
-                AbstractRing exterior = patch.getExterior().getAbstractRing();
-                exterior.setSrsName(surface.getValue().getSrsName());
-                Coordinate[] coords = GeodesyUtils
-                                .transformRingToRightHandedCSKeepAllCoords(exterior);
-                assertNotNull("Coordinate sequence is null", coords);
-                // first/end point + 5 points on arc
-                assertEquals("Coordinate sequence has unexpected length.", 9,
-                                coords.length);
-                assertEquals("First coordinate has unexpected x value.", -36.1667,
-                                coords[0].x, 0.0001);
-        }
+	@Test
+	public void transformRingToRightHandedCSKeepAllCoords_TripartiteCurve() throws JAXBException {
+		URL url = this.getClass().getResource("/gml/Surface-PolygonPatch-3.xml");
+		@SuppressWarnings("unchecked")
+		JAXBElement<SurfaceType> surface = (JAXBElement<SurfaceType>) gmlUnmarshaller.unmarshal(url);
+		PolygonPatchType patch = (PolygonPatchType) surface.getValue().getPatches().getAbstractSurfacePatch().get(0);
+		AbstractRing exterior = patch.getExterior().getAbstractRing();
+		exterior.setSrsName(surface.getValue().getSrsName());
+		Coordinate[] coords = GeodesyUtils.transformRingToRightHandedCSKeepAllCoords(exterior);
+		assertNotNull("Coordinate sequence is null", coords);
+		// first/end point + 5 points on arc
+		assertEquals("Coordinate sequence has unexpected length.", 9, coords.length);
+		assertEquals("First coordinate has unexpected x value.", -36.1667, coords[0].x, 0.0001);
+	}
 
 	@Test
 	public void removeConsecutiveDuplicates_1ppm() {
@@ -232,10 +187,8 @@ public class VerifyGeodesyUtils {
 
 	@Test
 	public void convertEPSGSrsNameToURN() {
-		String urn = GeodesyUtils
-				.convertSRSNameToURN("http://www.opengis.net/def/crs/EPSG/0/4326");
-		assertEquals("Unexpected CRS identifier", "urn:ogc:def:crs:EPSG::4326",
-				urn);
+		String urn = GeodesyUtils.convertSRSNameToURN("http://www.opengis.net/def/crs/EPSG/0/4326");
+		assertEquals("Unexpected CRS identifier", "urn:ogc:def:crs:EPSG::4326", urn);
 	}
 
 	@Test
@@ -251,7 +204,8 @@ public class VerifyGeodesyUtils {
 		coords.add(new Coordinate(557434.43, 4889943.44));
 		GeodesyUtils.removeConsecutiveDuplicates(coords, 1);
 		assertEquals("Coordinate list has unexpected length.", 7, coords.size());
-		assertTrue("Expected first and last positions to coincide.", coords
-				.get(0).equals(coords.get(coords.size() - 1)));
+		assertTrue("Expected first and last positions to coincide.",
+				coords.get(0).equals(coords.get(coords.size() - 1)));
 	}
+
 }

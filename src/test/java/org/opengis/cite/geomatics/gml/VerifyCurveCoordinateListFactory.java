@@ -27,96 +27,84 @@ import org.locationtech.jts.geom.Coordinate;
 
 public class VerifyCurveCoordinateListFactory {
 
-    private static Unmarshaller gmlUnmarshaller;
+	private static Unmarshaller gmlUnmarshaller;
 
-    @BeforeClass
-    public static void initFixture() throws Exception {
-        MarshallerPool pool = org.geotoolkit.gml.xml.GMLMarshallerPool.getInstance();
-        gmlUnmarshaller = pool.acquireUnmarshaller();
-    }
+	@BeforeClass
+	public static void initFixture() throws Exception {
+		MarshallerPool pool = org.geotoolkit.gml.xml.GMLMarshallerPool.getInstance();
+		gmlUnmarshaller = pool.acquireUnmarshaller();
+	}
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void curveWithArcByCenterPoint() throws JAXBException {
-        URL url = this.getClass()
-                .getResource("/gml/Curve-ArcByCenterPoint.xml");
-        JAXBElement<CurveType> result = (JAXBElement<CurveType>) gmlUnmarshaller
-                .unmarshal(url);
-        CurveType curve = result.getValue();
-        CurveCoordinateListFactory iut = new CurveCoordinateListFactory();
-        List<Coordinate> coordSet = iut.getCoordinateList(curve);
-        assertEquals("Unexpected number of points on curve.",
-                GmlUtils.TOTAL_ARC_POINTS, coordSet.size());
-    }
+	@Test
+	@SuppressWarnings("unchecked")
+	public void curveWithArcByCenterPoint() throws JAXBException {
+		URL url = this.getClass().getResource("/gml/Curve-ArcByCenterPoint.xml");
+		JAXBElement<CurveType> result = (JAXBElement<CurveType>) gmlUnmarshaller.unmarshal(url);
+		CurveType curve = result.getValue();
+		CurveCoordinateListFactory iut = new CurveCoordinateListFactory();
+		List<Coordinate> coordSet = iut.getCoordinateList(curve);
+		assertEquals("Unexpected number of points on curve.", GmlUtils.TOTAL_ARC_POINTS, coordSet.size());
+	}
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void lineString() throws JAXBException {
-        URL url = this.getClass().getResource("/gml/LineString.xml");
-        JAXBElement<LineString> result = (JAXBElement<LineString>) gmlUnmarshaller
-                .unmarshal(url);
-        LineString line = result.getValue();
-        CurveCoordinateListFactory iut = new CurveCoordinateListFactory();
-        List<Coordinate> coordList = iut.getCoordinateList(line);
-        assertEquals("Unexpected number of vertices.", 3, coordList.size());
-    }
+	@Test
+	@SuppressWarnings("unchecked")
+	public void lineString() throws JAXBException {
+		URL url = this.getClass().getResource("/gml/LineString.xml");
+		JAXBElement<LineString> result = (JAXBElement<LineString>) gmlUnmarshaller.unmarshal(url);
+		LineString line = result.getValue();
+		CurveCoordinateListFactory iut = new CurveCoordinateListFactory();
+		List<Coordinate> coordList = iut.getCoordinateList(line);
+		assertEquals("Unexpected number of vertices.", 3, coordList.size());
+	}
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void compositeCurve() throws JAXBException {
-        URL url = this.getClass().getResource("/gml/CompositeCurve.xml");
-        JAXBElement<CompositeCurveType> result = (JAXBElement<CompositeCurveType>) gmlUnmarshaller
-                .unmarshal(url);
-        CompositeCurveType curve = result.getValue();
-        CurveCoordinateListFactory iut = new CurveCoordinateListFactory();
-        List<Coordinate> coordList = iut.getCoordinateList(curve);
-        assertEquals("Unexpected number of points on curve.", 8,
-                coordList.size());
-    }
+	@Test
+	@SuppressWarnings("unchecked")
+	public void compositeCurve() throws JAXBException {
+		URL url = this.getClass().getResource("/gml/CompositeCurve.xml");
+		JAXBElement<CompositeCurveType> result = (JAXBElement<CompositeCurveType>) gmlUnmarshaller.unmarshal(url);
+		CompositeCurveType curve = result.getValue();
+		CurveCoordinateListFactory iut = new CurveCoordinateListFactory();
+		List<Coordinate> coordList = iut.getCoordinateList(curve);
+		assertEquals("Unexpected number of points on curve.", 8, coordList.size());
+	}
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void orientableCurve() throws JAXBException {
-        URL url = this.getClass().getResource("/gml/OrientableCurve.xml");
-        JAXBElement<OrientableCurveType> result = (JAXBElement<OrientableCurveType>) gmlUnmarshaller
-                .unmarshal(url);
-        OrientableCurveType curve = result.getValue();
-        CurveCoordinateListFactory iut = new CurveCoordinateListFactory();
-        List<Coordinate> coordList = iut.getCoordinateList(curve);
-        assertEquals("Unexpected number of points on curve.", 5,
-                coordList.size());
-        Coordinate firstCoord = new Coordinate(49.361246, -123.183889);
-        assertEquals("Unexpected first coordinate.", firstCoord,
-                coordList.get(0));
-    }
+	@Test
+	@SuppressWarnings("unchecked")
+	public void orientableCurve() throws JAXBException {
+		URL url = this.getClass().getResource("/gml/OrientableCurve.xml");
+		JAXBElement<OrientableCurveType> result = (JAXBElement<OrientableCurveType>) gmlUnmarshaller.unmarshal(url);
+		OrientableCurveType curve = result.getValue();
+		CurveCoordinateListFactory iut = new CurveCoordinateListFactory();
+		List<Coordinate> coordList = iut.getCoordinateList(curve);
+		assertEquals("Unexpected number of points on curve.", 5, coordList.size());
+		Coordinate firstCoord = new Coordinate(49.361246, -123.183889);
+		assertEquals("Unexpected first coordinate.", firstCoord, coordList.get(0));
+	}
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void tripartiteCurve() throws JAXBException {
-        URL url = this.getClass().getResource("/gml/Curve-tripartite.xml");
-        JAXBElement<CurveType> result = (JAXBElement<CurveType>) gmlUnmarshaller
-                .unmarshal(url);
-        CurveType curve = result.getValue();
-        CurveCoordinateListFactory iut = new CurveCoordinateListFactory();
-        List<Coordinate> coordSet = iut.getCoordinateList(curve);
-        assertEquals("Unexpected number of points on curve.", 9,
-                coordSet.size());
-    }
+	@Test
+	@SuppressWarnings("unchecked")
+	public void tripartiteCurve() throws JAXBException {
+		URL url = this.getClass().getResource("/gml/Curve-tripartite.xml");
+		JAXBElement<CurveType> result = (JAXBElement<CurveType>) gmlUnmarshaller.unmarshal(url);
+		CurveType curve = result.getValue();
+		CurveCoordinateListFactory iut = new CurveCoordinateListFactory();
+		List<Coordinate> coordSet = iut.getCoordinateList(curve);
+		assertEquals("Unexpected number of points on curve.", 9, coordSet.size());
+	}
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void exteriorBoundaryOfPolygon() throws JAXBException {
-        URL url = this.getClass().getResource("/gml/Polygon.xml");
-        JAXBElement<PolygonType> result = (JAXBElement<PolygonType>) gmlUnmarshaller
-                .unmarshal(url);
-        PolygonType polygon = result.getValue();
-        AbstractRing exterior = polygon.getExterior().getAbstractRing();
-        CurveCoordinateListFactory iut = new CurveCoordinateListFactory();
-        List<Coordinate> coordSet = iut.createCoordinateList(exterior);
-        assertEquals("Unexpected number of points on exterior ring.", 42,
-                coordSet.size());
-    }
+	@Test
+	@SuppressWarnings("unchecked")
+	public void exteriorBoundaryOfPolygon() throws JAXBException {
+		URL url = this.getClass().getResource("/gml/Polygon.xml");
+		JAXBElement<PolygonType> result = (JAXBElement<PolygonType>) gmlUnmarshaller.unmarshal(url);
+		PolygonType polygon = result.getValue();
+		AbstractRing exterior = polygon.getExterior().getAbstractRing();
+		CurveCoordinateListFactory iut = new CurveCoordinateListFactory();
+		List<Coordinate> coordSet = iut.createCoordinateList(exterior);
+		assertEquals("Unexpected number of points on exterior ring.", 42, coordSet.size());
+	}
+
 }

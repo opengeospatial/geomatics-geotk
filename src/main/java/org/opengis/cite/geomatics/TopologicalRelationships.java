@@ -29,259 +29,245 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.operation.distance.DistanceOp;
 
 /**
- * Provides methods to test for the existence of a specified spatial
- * relationship between two geometric objects.
+ * Provides methods to test for the existence of a specified spatial relationship between
+ * two geometric objects.
  *
  * @see <a target="_blank" href=
- *      "http://portal.opengeospatial.org/files/?artifact_id=25355">OpenGIS
- *      Implementation Specification for Geographic information - Simple feature
- *      access - Part 1: Common architecture</a>
+ * "http://portal.opengeospatial.org/files/?artifact_id=25355">OpenGIS Implementation
+ * Specification for Geographic information - Simple feature access - Part 1: Common
+ * architecture</a>
  *
  */
 public class TopologicalRelationships {
 
-    private static final Logger LOGR = Logger.getLogger(TopologicalRelationships.class.getPackage().getName());
+	private static final Logger LOGR = Logger.getLogger(TopologicalRelationships.class.getPackage().getName());
 
-    /**
-     * Determines whether or not two GML geometry representations are spatially
-     * related in some manner (e.g. g1 contains g2). If the geometry
-     * representations have different CRS references, an attempt will be made to
-     * change coordinates from one CRS to another through the application of a
-     * coordinate operation (conversion or transformation).
-     *
-     * @param predicate
-     *            A spatial relationship (predicate).
-     * @param node1
-     *            An Element node representing a GML geometry object.
-     * @param node2
-     *            An Element node representing another GML geometry object.
-     * @return true if the geometries satisfy the given spatial relationship ;
-     *         false otherwise.
-     */
-    public static boolean isSpatiallyRelated(SpatialOperator predicate, Node node1, Node node2) {
-        Geometry g1 = toJTSGeometry(unmarshal(node1));
-        Geometry g2 = toJTSGeometry(unmarshal(node2));
-        try {
-            g1 = setCRS(g1, JTS.findCoordinateReferenceSystem(g2));
-        } catch (FactoryException | TransformException e) {
-            throw new RuntimeException(e);
-        }
-        boolean isRelated = false;
-        switch (predicate) {
-        case INTERSECTS:
-            isRelated = g1.intersects(g2);
-            break;
-        case DISJOINT:
-            isRelated = !g1.intersects(g2);
-            break;
-        case TOUCHES:
-            isRelated = g1.touches(g2);
-            break;
-        case WITHIN:
-            isRelated = g1.within(g2);
-            break;
-        case OVERLAPS:
-            isRelated = g1.overlaps(g2);
-            break;
-        case CROSSES:
-            isRelated = g1.crosses(g2);
-            break;
-        case CONTAINS:
-            isRelated = g1.contains(g2);
-            break;
-        case EQUALS:
-            isRelated = g1.equalsTopo(g2);
-            break;
-        default:
-            throw new IllegalArgumentException("Unsupported spatial predicate: " + predicate);
-        }
-        return isRelated;
-    }
+	/**
+	 * Determines whether or not two GML geometry representations are spatially related in
+	 * some manner (e.g. g1 contains g2). If the geometry representations have different
+	 * CRS references, an attempt will be made to change coordinates from one CRS to
+	 * another through the application of a coordinate operation (conversion or
+	 * transformation).
+	 * @param predicate A spatial relationship (predicate).
+	 * @param node1 An Element node representing a GML geometry object.
+	 * @param node2 An Element node representing another GML geometry object.
+	 * @return true if the geometries satisfy the given spatial relationship ; false
+	 * otherwise.
+	 */
+	public static boolean isSpatiallyRelated(SpatialOperator predicate, Node node1, Node node2) {
+		Geometry g1 = toJTSGeometry(unmarshal(node1));
+		Geometry g2 = toJTSGeometry(unmarshal(node2));
+		try {
+			g1 = setCRS(g1, JTS.findCoordinateReferenceSystem(g2));
+		}
+		catch (FactoryException | TransformException e) {
+			throw new RuntimeException(e);
+		}
+		boolean isRelated = false;
+		switch (predicate) {
+			case INTERSECTS:
+				isRelated = g1.intersects(g2);
+				break;
+			case DISJOINT:
+				isRelated = !g1.intersects(g2);
+				break;
+			case TOUCHES:
+				isRelated = g1.touches(g2);
+				break;
+			case WITHIN:
+				isRelated = g1.within(g2);
+				break;
+			case OVERLAPS:
+				isRelated = g1.overlaps(g2);
+				break;
+			case CROSSES:
+				isRelated = g1.crosses(g2);
+				break;
+			case CONTAINS:
+				isRelated = g1.contains(g2);
+				break;
+			case EQUALS:
+				isRelated = g1.equalsTopo(g2);
+				break;
+			default:
+				throw new IllegalArgumentException("Unsupported spatial predicate: " + predicate);
+		}
+		return isRelated;
+	}
 
-    /**
-     * Tests whether or not the minimum (orthodromic) distance between two
-     * geometry objects is less than the specified distance. That is,
-     *
-     * <pre>
-     * DWithin(A,B,d) &#8660; Distance(A,B) &lt; d
-     * </pre>
-     *
-     * <p>
-     * The computed distance is the shortest distance between the two nearest
-     * points in the geometry instances, as measured along the surface of an
-     * ellipsoid.
-     * </p>
-     * <p>
-     * The unit of measure identifier for the given distance must be either a
-     * standard symbol for a unit of length (from UCUM) or an absolute URI that
-     * refers to a unit definition (unsupported). SI prefix symbols may also be
-     * used (see examples in the table below).
-     * </p>
-     * <table border="1" style="border-collapse: collapse">
-     * <caption>Units of Length (UCUM)</caption>
-     * <tr>
-     * <th>Symbol (c/s)</th>
-     * <th>Name</th>
-     * </tr>
-     * <tr>
-     * <td><code>m</code></td>
-     * <td>metre</td>
-     * </tr>
-     * <tr>
-     * <td><code>km</code></td>
-     * <td>kilometre</td>
-     * </tr>
-     * <tr>
-     * <td><code>[mi_i]</code></td>
-     * <td>international mile</td>
-     * </tr>
-     * <tr>
-     * <td><code>[nmi_i]</code></td>
-     * <td>international nautical mile</td>
-     * </tr>
-     * </table>
-     *
-     * @param geom1
-     *            An Element node representing a GML geometry instance.
-     * @param geom2
-     *            An Element node representing some other GML geometry instance.
-     * @param distanceWithUom
-     *            An fes:Distance element with a unit of measurement.
-     * @return true if the minimum distance between the geometries is less than
-     *         the given quantity; false otherwise.
-     *
-     * @see <a target="_blank" href="http://unitsofmeasure.org/ucum.html">The
-     *      Unified Code for Units of Measure (UCUM)</a>
-     */
-    @SuppressWarnings("unchecked")
-    public static boolean isWithinDistance(Node geom1, Node geom2, Element distanceWithUom) {
-        Geometry g1 = toJTSGeometry(unmarshal(geom1));
-        Geometry g2 = toJTSGeometry(unmarshal(geom2));
-        double orthodromicDist;
-        try {
-            g1 = setCRS(g1, JTS.findCoordinateReferenceSystem(g2));
-            CoordinateReferenceSystem crs1 = JTS.findCoordinateReferenceSystem(g1);
-            Coordinate[] nearestPoints = DistanceOp.nearestPoints(g1, g2);
-            orthodromicDist = JTS.orthodromicDistance(nearestPoints[0], nearestPoints[1], crs1);
-        } catch (FactoryException | TransformException e) {
-            throw new RuntimeException(e);
-        }
-        double maxDistance = Double.parseDouble(distanceWithUom.getTextContent());
-        String uomId = distanceWithUom.getAttribute("uom");
-        LOGR.fine(String.format("Max distance = %s %s; calculated orthodromic distance = %s m", maxDistance, uomId,
-                orthodromicDist));
-        Unit<Length> uom = null;
-        if (uomId.contains(":")) {
-            // absolute URI is currently ignored
-        } else if (uomId.equals("[nmi_i]")) {
-            // TODO: maybe we should add more UCUM codes here.
-            uom = Units.NAUTICAL_MILE;
-        } else {
-            uom = Units.valueOf(uomId).asType(Length.class);
-        }
-        UnitConverter converter = uom.getConverterTo(Units.METRE);
-        return orthodromicDist < converter.convert(maxDistance);
-    }
+	/**
+	 * Tests whether or not the minimum (orthodromic) distance between two geometry
+	 * objects is less than the specified distance. That is,
+	 *
+	 * <pre>
+	 * DWithin(A,B,d) &#8660; Distance(A,B) &lt; d
+	 * </pre>
+	 *
+	 * <p>
+	 * The computed distance is the shortest distance between the two nearest points in
+	 * the geometry instances, as measured along the surface of an ellipsoid.
+	 * </p>
+	 * <p>
+	 * The unit of measure identifier for the given distance must be either a standard
+	 * symbol for a unit of length (from UCUM) or an absolute URI that refers to a unit
+	 * definition (unsupported). SI prefix symbols may also be used (see examples in the
+	 * table below).
+	 * </p>
+	 * <table border="1" style="border-collapse: collapse">
+	 * <caption>Units of Length (UCUM)</caption>
+	 * <tr>
+	 * <th>Symbol (c/s)</th>
+	 * <th>Name</th>
+	 * </tr>
+	 * <tr>
+	 * <td><code>m</code></td>
+	 * <td>metre</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>km</code></td>
+	 * <td>kilometre</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>[mi_i]</code></td>
+	 * <td>international mile</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>[nmi_i]</code></td>
+	 * <td>international nautical mile</td>
+	 * </tr>
+	 * </table>
+	 * @param geom1 An Element node representing a GML geometry instance.
+	 * @param geom2 An Element node representing some other GML geometry instance.
+	 * @param distanceWithUom An fes:Distance element with a unit of measurement.
+	 * @return true if the minimum distance between the geometries is less than the given
+	 * quantity; false otherwise.
+	 *
+	 * @see <a target="_blank" href="http://unitsofmeasure.org/ucum.html">The Unified Code
+	 * for Units of Measure (UCUM)</a>
+	 */
+	@SuppressWarnings("unchecked")
+	public static boolean isWithinDistance(Node geom1, Node geom2, Element distanceWithUom) {
+		Geometry g1 = toJTSGeometry(unmarshal(geom1));
+		Geometry g2 = toJTSGeometry(unmarshal(geom2));
+		double orthodromicDist;
+		try {
+			g1 = setCRS(g1, JTS.findCoordinateReferenceSystem(g2));
+			CoordinateReferenceSystem crs1 = JTS.findCoordinateReferenceSystem(g1);
+			Coordinate[] nearestPoints = DistanceOp.nearestPoints(g1, g2);
+			orthodromicDist = JTS.orthodromicDistance(nearestPoints[0], nearestPoints[1], crs1);
+		}
+		catch (FactoryException | TransformException e) {
+			throw new RuntimeException(e);
+		}
+		double maxDistance = Double.parseDouble(distanceWithUom.getTextContent());
+		String uomId = distanceWithUom.getAttribute("uom");
+		LOGR.fine(String.format("Max distance = %s %s; calculated orthodromic distance = %s m", maxDistance, uomId,
+				orthodromicDist));
+		Unit<Length> uom = null;
+		if (uomId.contains(":")) {
+			// absolute URI is currently ignored
+		}
+		else if (uomId.equals("[nmi_i]")) {
+			// TODO: maybe we should add more UCUM codes here.
+			uom = Units.NAUTICAL_MILE;
+		}
+		else {
+			uom = Units.valueOf(uomId).asType(Length.class);
+		}
+		UnitConverter converter = uom.getConverterTo(Units.METRE);
+		return orthodromicDist < converter.convert(maxDistance);
+	}
 
-    /**
-     * Tests whether or not the orthodromic distance between two geometry
-     * objects is greater than or equal to the specified distance. That is,
-     *
-     * <pre>
-     * Beyond(A,B,d) &#8660; Distance(A,B) &gt;= d
-     * </pre>
-     *
-     * @param g1
-     *            An Element node representing a GML geometry instance.
-     * @param g2
-     *            An Element node representing some other GML geometry instance.
-     * @param distanceWithUom
-     *            An fes:Distance element with a unit of measurement.
-     * @return true if the minimum distance between the geometries equals or
-     *         exceeds the given quantity; false otherwise.
-     */
-    public static boolean isBeyond(Node g1, Node g2, Element distanceWithUom) {
-        return !isWithinDistance(g1, g2, distanceWithUom);
-    }
+	/**
+	 * Tests whether or not the orthodromic distance between two geometry objects is
+	 * greater than or equal to the specified distance. That is,
+	 *
+	 * <pre>
+	 * Beyond(A,B,d) &#8660; Distance(A,B) &gt;= d
+	 * </pre>
+	 * @param g1 An Element node representing a GML geometry instance.
+	 * @param g2 An Element node representing some other GML geometry instance.
+	 * @param distanceWithUom An fes:Distance element with a unit of measurement.
+	 * @return true if the minimum distance between the geometries equals or exceeds the
+	 * given quantity; false otherwise.
+	 */
+	public static boolean isBeyond(Node g1, Node g2, Element distanceWithUom) {
+		return !isWithinDistance(g1, g2, distanceWithUom);
+	}
 
-    /**
-     *
-     * Builds a JTS geometry object from a GML geometry object.
-     *
-     * @param gmlGeom
-     *            A GML geometry.
-     * @return A JTS geometry, or null if one could not be constructed.
-     */
-    static Geometry toJTSGeometry(AbstractGeometry gmlGeom) {
-        Geometry jtsGeom = null;
-        try {
-            jtsGeom = GeometrytoJTS.toJTS(gmlGeom);
-        } catch (FactoryException e1) {
-            throw new RuntimeException(e1);
-        } catch (IllegalArgumentException e2) {
-            // Unsupported in Geotk v3
-            if (Curve.class.isInstance(gmlGeom)) {
-                jtsGeom = GmlUtils.buildLineString(Curve.class.cast(gmlGeom));
-            }
-        }
-        LOGR.fine(String.format("Resulting JTS geometry:\n  %s", jtsGeom.toText()));
-        return jtsGeom;
-    }
+	/**
+	 *
+	 * Builds a JTS geometry object from a GML geometry object.
+	 * @param gmlGeom A GML geometry.
+	 * @return A JTS geometry, or null if one could not be constructed.
+	 */
+	static Geometry toJTSGeometry(AbstractGeometry gmlGeom) {
+		Geometry jtsGeom = null;
+		try {
+			jtsGeom = GeometrytoJTS.toJTS(gmlGeom);
+		}
+		catch (FactoryException e1) {
+			throw new RuntimeException(e1);
+		}
+		catch (IllegalArgumentException e2) {
+			// Unsupported in Geotk v3
+			if (Curve.class.isInstance(gmlGeom)) {
+				jtsGeom = GmlUtils.buildLineString(Curve.class.cast(gmlGeom));
+			}
+		}
+		LOGR.fine(String.format("Resulting JTS geometry:\n  %s", jtsGeom.toText()));
+		return jtsGeom;
+	}
 
-    /**
-     * Creates a GML geometry object from a DOM node.
-     *
-     * @param geomNode
-     *            A node representing a GML geometry instance.
-     * @return A geometry object.
-     */
-    static AbstractGeometry unmarshal(Node geomNode) {
-        if (!geomNode.getNamespaceURI().equals(GmlUtils.GML_NS)) {
-            throw new IllegalArgumentException(
-                    String.format("Node not in GML namespace: ", geomNode.getNamespaceURI()));
-        }
-        GmlUtils.setSrsNameOnCollectionMembers(geomNode);
-        AbstractGeometry gmlGeom;
-        try {
-            gmlGeom = GmlUtils.unmarshalGMLGeometry(new DOMSource(geomNode));
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
-        String crsName = gmlGeom.getSrsName();
-        if (null == crsName) {
-            crsName = GmlUtils.findCRSReference((Element) geomNode);
-        }
-        // NoSuchAuthorityCodeException if srsName is 'http' URI (Geotk v3)
-        gmlGeom.setSrsName(GeodesyUtils.convertSRSNameToURN(crsName));
-        return gmlGeom;
-    }
+	/**
+	 * Creates a GML geometry object from a DOM node.
+	 * @param geomNode A node representing a GML geometry instance.
+	 * @return A geometry object.
+	 */
+	static AbstractGeometry unmarshal(Node geomNode) {
+		if (!geomNode.getNamespaceURI().equals(GmlUtils.GML_NS)) {
+			throw new IllegalArgumentException(
+					String.format("Node not in GML namespace: ", geomNode.getNamespaceURI()));
+		}
+		GmlUtils.setSrsNameOnCollectionMembers(geomNode);
+		AbstractGeometry gmlGeom;
+		try {
+			gmlGeom = GmlUtils.unmarshalGMLGeometry(new DOMSource(geomNode));
+		}
+		catch (JAXBException e) {
+			throw new RuntimeException(e);
+		}
+		String crsName = gmlGeom.getSrsName();
+		if (null == crsName) {
+			crsName = GmlUtils.findCRSReference((Element) geomNode);
+		}
+		// NoSuchAuthorityCodeException if srsName is 'http' URI (Geotk v3)
+		gmlGeom.setSrsName(GeodesyUtils.convertSRSNameToURN(crsName));
+		return gmlGeom;
+	}
 
-    /**
-     * Checks that the given geometry object uses the specified CRS. If this is
-     * not the case, an attempt is made to change it.
-     *
-     * @param g1
-     *            A JTS geometry object.
-     * @param crs
-     *            The target CRS.
-     * @return A Geometry object that uses the indicated CRS (the original
-     *         geometry if its CRS was unchanged).
-     * @throws FactoryException
-     *             If a CRS cannot be identified (e.g. a missing or invalid
-     *             reference).
-     * @throws TransformException
-     *             If any coordinate operation (conversion or transformation)
-     *             fails.
-     */
-    static Geometry setCRS(Geometry g1, CoordinateReferenceSystem crs) throws FactoryException, TransformException {
-        CoordinateReferenceSystem crs1 = JTS.findCoordinateReferenceSystem(g1);
-        Geometry g2 = null;
-        if (!crs1.getName().equals(crs.getName())) {
-            LOGR.fine(String.format("Attempting to change CRS %s to %s", crs1.getName(), crs.getName()));
-            MathTransform transform = CRS.findOperation(crs1, crs, null).getMathTransform();
-            g2 = org.apache.sis.internal.feature.jts.JTS.transform(g1, transform);
-            JTS.setCRS(g2, crs);
-        }
-        return (null != g2) ? g2 : g1;
-    }
+	/**
+	 * Checks that the given geometry object uses the specified CRS. If this is not the
+	 * case, an attempt is made to change it.
+	 * @param g1 A JTS geometry object.
+	 * @param crs The target CRS.
+	 * @return A Geometry object that uses the indicated CRS (the original geometry if its
+	 * CRS was unchanged).
+	 * @throws FactoryException If a CRS cannot be identified (e.g. a missing or invalid
+	 * reference).
+	 * @throws TransformException If any coordinate operation (conversion or
+	 * transformation) fails.
+	 */
+	static Geometry setCRS(Geometry g1, CoordinateReferenceSystem crs) throws FactoryException, TransformException {
+		CoordinateReferenceSystem crs1 = JTS.findCoordinateReferenceSystem(g1);
+		Geometry g2 = null;
+		if (!crs1.getName().equals(crs.getName())) {
+			LOGR.fine(String.format("Attempting to change CRS %s to %s", crs1.getName(), crs.getName()));
+			MathTransform transform = CRS.findOperation(crs1, crs, null).getMathTransform();
+			g2 = org.apache.sis.internal.feature.jts.JTS.transform(g1, transform);
+			JTS.setCRS(g2, crs);
+		}
+		return (null != g2) ? g2 : g1;
+	}
+
 }

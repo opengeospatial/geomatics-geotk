@@ -13,30 +13,31 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
 public class CommonTestFixture {
-    protected static DocumentBuilder docBuilder;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+	protected static DocumentBuilder docBuilder;
 
-    @BeforeClass
-    public static void initBasicTestFixture()
-            throws ParserConfigurationException {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
-        docBuilder = dbf.newDocumentBuilder();
-    }
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
-    protected String writeNodeToString(Node node) {
-        DOMImplementationRegistry registry;
-        try {
-            registry = DOMImplementationRegistry.newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        DOMImplementationLS impl = (DOMImplementationLS) registry
-                .getDOMImplementation("LS");
-        LSSerializer serializer = impl.createLSSerializer();
-        serializer.getDomConfig().setParameter("xml-declaration", false);
-        return serializer.writeToString(node);
-    }
+	@BeforeClass
+	public static void initBasicTestFixture() throws ParserConfigurationException {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setNamespaceAware(true);
+		docBuilder = dbf.newDocumentBuilder();
+	}
+
+	protected String writeNodeToString(Node node) {
+		DOMImplementationRegistry registry;
+		try {
+			registry = DOMImplementationRegistry.newInstance();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
+		LSSerializer serializer = impl.createLSSerializer();
+		serializer.getDomConfig().setParameter("xml-declaration", false);
+		return serializer.writeToString(node);
+	}
+
 }

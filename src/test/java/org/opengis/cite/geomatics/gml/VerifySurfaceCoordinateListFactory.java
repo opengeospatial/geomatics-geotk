@@ -27,131 +27,105 @@ import org.locationtech.jts.geom.Coordinate;
 
 public class VerifySurfaceCoordinateListFactory {
 
-    private static DocumentBuilder docBuilder;
-    private static Unmarshaller gmlUnmarshaller;
+	private static DocumentBuilder docBuilder;
 
-    @BeforeClass
-    public static void initFixture() throws Exception {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
-        docBuilder = dbf.newDocumentBuilder();
-        MarshallerPool pool = org.geotoolkit.gml.xml.GMLMarshallerPool.getInstance();
-        gmlUnmarshaller = pool.acquireUnmarshaller();
-    }
+	private static Unmarshaller gmlUnmarshaller;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+	@BeforeClass
+	public static void initFixture() throws Exception {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setNamespaceAware(true);
+		docBuilder = dbf.newDocumentBuilder();
+		MarshallerPool pool = org.geotoolkit.gml.xml.GMLMarshallerPool.getInstance();
+		gmlUnmarshaller = pool.acquireUnmarshaller();
+	}
 
-    @Test
-    public void exteriorBoundaryOfPolygon() throws JAXBException {
-        URL url = this.getClass().getResource("/gml/Polygon.xml");
-        @SuppressWarnings("unchecked")
-        JAXBElement<PolygonType> result = (JAXBElement<PolygonType>) gmlUnmarshaller
-                .unmarshal(url);
-        PolygonType polygon = result.getValue();
-        SurfaceCoordinateListFactory iut = new SurfaceCoordinateListFactory();
-        List<Coordinate> coordSet = iut.createCoordinateList(polygon);
-        assertEquals("Unexpected number of points on exterior boundary.", 42,
-                coordSet.size());
-    }
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
-    @Test
-    public void interiorBoundaryOfPolygon() throws JAXBException {
-        URL url = this.getClass().getResource("/gml/Polygon.xml");
-        @SuppressWarnings("unchecked")
-        JAXBElement<PolygonType> result = (JAXBElement<PolygonType>) gmlUnmarshaller
-                .unmarshal(url);
-        PolygonType polygon = result.getValue();
-        SurfaceCoordinateListFactory iut = new SurfaceCoordinateListFactory();
-        Set<List<Coordinate>> coordSet = iut
-                .interiorBoundariesOfPolygon(polygon);
-        assertFalse("Set is empty.", coordSet.isEmpty());
-        List<Coordinate> interiorCoords = coordSet.iterator().next();
-        assertEquals("Unexpected number of points on interior boundary.", 9,
-                interiorCoords.size());
-    }
+	@Test
+	public void exteriorBoundaryOfPolygon() throws JAXBException {
+		URL url = this.getClass().getResource("/gml/Polygon.xml");
+		@SuppressWarnings("unchecked")
+		JAXBElement<PolygonType> result = (JAXBElement<PolygonType>) gmlUnmarshaller.unmarshal(url);
+		PolygonType polygon = result.getValue();
+		SurfaceCoordinateListFactory iut = new SurfaceCoordinateListFactory();
+		List<Coordinate> coordSet = iut.createCoordinateList(polygon);
+		assertEquals("Unexpected number of points on exterior boundary.", 42, coordSet.size());
+	}
 
-    @Test
-    public void exteriorBoundaryOfSurfaceWithPolygonPatch()
-            throws JAXBException {
-        URL url = this.getClass()
-                .getResource("/gml/Surface-PolygonPatch-1.xml");
-        @SuppressWarnings("unchecked")
-        JAXBElement<SurfaceType> result = (JAXBElement<SurfaceType>) gmlUnmarshaller
-                .unmarshal(url);
-        SurfaceType surface = result.getValue();
-        SurfaceCoordinateListFactory iut = new SurfaceCoordinateListFactory();
-        List<Coordinate> coordSet = iut.createCoordinateList(surface);
-        assertEquals("Unexpected number of points on exterior boundary.", 42,
-                coordSet.size());
-    }
+	@Test
+	public void interiorBoundaryOfPolygon() throws JAXBException {
+		URL url = this.getClass().getResource("/gml/Polygon.xml");
+		@SuppressWarnings("unchecked")
+		JAXBElement<PolygonType> result = (JAXBElement<PolygonType>) gmlUnmarshaller.unmarshal(url);
+		PolygonType polygon = result.getValue();
+		SurfaceCoordinateListFactory iut = new SurfaceCoordinateListFactory();
+		Set<List<Coordinate>> coordSet = iut.interiorBoundariesOfPolygon(polygon);
+		assertFalse("Set is empty.", coordSet.isEmpty());
+		List<Coordinate> interiorCoords = coordSet.iterator().next();
+		assertEquals("Unexpected number of points on interior boundary.", 9, interiorCoords.size());
+	}
 
-    @Test
-    public void interiorBoundaryOfSurface() throws JAXBException {
-        URL url = this.getClass()
-                .getResource("/gml/Surface-PolygonPatch-1.xml");
-        @SuppressWarnings("unchecked")
-        JAXBElement<SurfaceType> result = (JAXBElement<SurfaceType>) gmlUnmarshaller
-                .unmarshal(url);
-        SurfaceType surface = result.getValue();
-        SurfaceCoordinateListFactory iut = new SurfaceCoordinateListFactory();
-        Set<List<Coordinate>> coordSet = iut.interiorCoordinatesSet(surface);
-        assertFalse("Set is empty.", coordSet.isEmpty());
-        List<Coordinate> interiorCoords = coordSet.iterator().next();
-        assertEquals("Unexpected number of points on interior boundary.", 9,
-                interiorCoords.size());
-    }
+	@Test
+	public void exteriorBoundaryOfSurfaceWithPolygonPatch() throws JAXBException {
+		URL url = this.getClass().getResource("/gml/Surface-PolygonPatch-1.xml");
+		@SuppressWarnings("unchecked")
+		JAXBElement<SurfaceType> result = (JAXBElement<SurfaceType>) gmlUnmarshaller.unmarshal(url);
+		SurfaceType surface = result.getValue();
+		SurfaceCoordinateListFactory iut = new SurfaceCoordinateListFactory();
+		List<Coordinate> coordSet = iut.createCoordinateList(surface);
+		assertEquals("Unexpected number of points on exterior boundary.", 42, coordSet.size());
+	}
 
-    @Test
-    public void exteriorBoundaryOfSurfaceWithTwoPatches() throws JAXBException {
-        URL url = this.getClass()
-                .getResource("/gml/Surface-PolygonPatch-2.xml");
-        @SuppressWarnings("unchecked")
-        JAXBElement<SurfaceType> result = (JAXBElement<SurfaceType>) gmlUnmarshaller
-                .unmarshal(url);
-        SurfaceType surface = result.getValue();
-        SurfaceCoordinateListFactory iut = new SurfaceCoordinateListFactory();
-        List<Coordinate> coordSet = iut.createCoordinateList(surface);
-        assertEquals("Unexpected number of points on exterior boundary.", 6,
-                coordSet.size());
-    }
+	@Test
+	public void interiorBoundaryOfSurface() throws JAXBException {
+		URL url = this.getClass().getResource("/gml/Surface-PolygonPatch-1.xml");
+		@SuppressWarnings("unchecked")
+		JAXBElement<SurfaceType> result = (JAXBElement<SurfaceType>) gmlUnmarshaller.unmarshal(url);
+		SurfaceType surface = result.getValue();
+		SurfaceCoordinateListFactory iut = new SurfaceCoordinateListFactory();
+		Set<List<Coordinate>> coordSet = iut.interiorCoordinatesSet(surface);
+		assertFalse("Set is empty.", coordSet.isEmpty());
+		List<Coordinate> interiorCoords = coordSet.iterator().next();
+		assertEquals("Unexpected number of points on interior boundary.", 9, interiorCoords.size());
+	}
 
-    @Test
-    public void exteriorBoundaryOfSurfaceIsTripartiteCurve()
-            throws SAXException, IOException {
-        Document doc = docBuilder.parse(this.getClass().getResourceAsStream(
-                "/gml/Surface-PolygonPatch-3.xml"));
-        SurfaceCoordinateListFactory iut = new SurfaceCoordinateListFactory();
-        List<Coordinate> coordSet = iut.createCoordinateList(doc
-                .getDocumentElement());
-        assertEquals("Unexpected number of points on exterior boundary.", 9,
-                coordSet.size());
-    }
+	@Test
+	public void exteriorBoundaryOfSurfaceWithTwoPatches() throws JAXBException {
+		URL url = this.getClass().getResource("/gml/Surface-PolygonPatch-2.xml");
+		@SuppressWarnings("unchecked")
+		JAXBElement<SurfaceType> result = (JAXBElement<SurfaceType>) gmlUnmarshaller.unmarshal(url);
+		SurfaceType surface = result.getValue();
+		SurfaceCoordinateListFactory iut = new SurfaceCoordinateListFactory();
+		List<Coordinate> coordSet = iut.createCoordinateList(surface);
+		assertEquals("Unexpected number of points on exterior boundary.", 6, coordSet.size());
+	}
 
-    @Test
-    public void exteriorBoundaryOfAIXMSurface() throws JAXBException,
-            SAXException, IOException {
-        Document doc = docBuilder.parse(this.getClass().getResourceAsStream(
-                "/gml/AIXMSurface.xml"));
-        SurfaceCoordinateListFactory iut = new SurfaceCoordinateListFactory();
-        List<Coordinate> coordSet = iut.createCoordinateList(doc
-                .getDocumentElement());
-        assertEquals("Unexpected number of points on exterior boundary.", 10,
-                coordSet.size());
-    }
+	@Test
+	public void exteriorBoundaryOfSurfaceIsTripartiteCurve() throws SAXException, IOException {
+		Document doc = docBuilder.parse(this.getClass().getResourceAsStream("/gml/Surface-PolygonPatch-3.xml"));
+		SurfaceCoordinateListFactory iut = new SurfaceCoordinateListFactory();
+		List<Coordinate> coordSet = iut.createCoordinateList(doc.getDocumentElement());
+		assertEquals("Unexpected number of points on exterior boundary.", 9, coordSet.size());
+	}
 
-    @Test
-    public void interiorBoundaryOfAIXMSurface() throws JAXBException,
-            SAXException, IOException {
-        Document doc = docBuilder.parse(this.getClass().getResourceAsStream(
-                "/gml/AIXMSurface-2.xml"));
-        SurfaceCoordinateListFactory iut = new SurfaceCoordinateListFactory();
-        Set<List<Coordinate>> coordSet = iut.interiorCoordinatesSet(doc
-                .getDocumentElement());
-        assertFalse("Set is empty.", coordSet.isEmpty());
-        List<Coordinate> interiorCoords = coordSet.iterator().next();
-        assertEquals("Unexpected number of points on interior boundary.", 4,
-                interiorCoords.size());
-    }
+	@Test
+	public void exteriorBoundaryOfAIXMSurface() throws JAXBException, SAXException, IOException {
+		Document doc = docBuilder.parse(this.getClass().getResourceAsStream("/gml/AIXMSurface.xml"));
+		SurfaceCoordinateListFactory iut = new SurfaceCoordinateListFactory();
+		List<Coordinate> coordSet = iut.createCoordinateList(doc.getDocumentElement());
+		assertEquals("Unexpected number of points on exterior boundary.", 10, coordSet.size());
+	}
+
+	@Test
+	public void interiorBoundaryOfAIXMSurface() throws JAXBException, SAXException, IOException {
+		Document doc = docBuilder.parse(this.getClass().getResourceAsStream("/gml/AIXMSurface-2.xml"));
+		SurfaceCoordinateListFactory iut = new SurfaceCoordinateListFactory();
+		Set<List<Coordinate>> coordSet = iut.interiorCoordinatesSet(doc.getDocumentElement());
+		assertFalse("Set is empty.", coordSet.isEmpty());
+		List<Coordinate> interiorCoords = coordSet.iterator().next();
+		assertEquals("Unexpected number of points on interior boundary.", 4, interiorCoords.size());
+	}
 
 }
