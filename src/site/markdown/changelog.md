@@ -1,5 +1,14 @@
 ﻿# Release Notes
 
+## 1.18 (2024-10-02)
+
+Attention: Java 17 is required.
+
+* [#16](https://github.com/opengeospatial/geomatics-geotk/issues/16): Migrate to TEAM Engine 6 (Java 17)
+* [#21](https://github.com/opengeospatial/geomatics-geotk/pull/21): Set maven-compiler-plugin to Java 17 and configure maven-enforcer-plugin
+* [#20](https://github.com/opengeospatial/geomatics-geotk/pull/20): Introduce spring-javaformat-maven-plugin and execute formatting
+* [#19](https://github.com/opengeospatial/geomatics-geotk/pull/19): Configure exclusions in pom to prevent conflicting versions
+
 ## 1.17 (2024-04-30)
 
 * [#14](https://github.com/opengeospatial/geomatics-geotk/pull/14): Handle geometries containing GML patches
